@@ -24,7 +24,6 @@ import java.util.Map;
 import com.iaic.cortacesped.busquedasCiegas.BusquedaPrimeroAnchura;
 
 // TODO: salvar obstáculos cargados en fichero
-// TODO: trazar trayectoria
 // TODO: ampliar más
 public class CortaCesped implements ActionListener {
 	
@@ -296,13 +295,21 @@ public class CortaCesped implements ActionListener {
         	dibujarInstancia();
         }
         else if (texto.equals("Alg. Ciego")) {
-        	BusquedaPrimeroAnchura busquedaPrimeroAnchura = new BusquedaPrimeroAnchura(columnas, filas, this);
-        	boolean resultado = busquedaPrimeroAnchura.cortarCesped();
-        	if (resultado)
-        		System.out.println("Objetivo cumplido");
-        	else
-        		System.out.println("Objetivo NO cumplido");
-        	
+        	final BusquedaPrimeroAnchura busquedaPrimeroAnchura = new BusquedaPrimeroAnchura(columnas, filas, this);
+
+        	// ejecutamos en un nuevo hilo para permitir el repintado del canvas
+        	Runnable miRunnable = new Runnable()
+        	{
+        		public void run() {
+        			boolean resultado = busquedaPrimeroAnchura.cortarCesped();
+        			if (resultado)
+        				System.out.println("Objetivo cumplido");
+        			else
+        				System.out.println("Objetivo NO cumplido");
+        		}
+        	};
+        	Thread hilo = new Thread (miRunnable);
+        	hilo.start();
         }
         else if (texto.equals("Debug")) {		// Sólo para realizar ciertas pruebas
         	mover(5,5);
@@ -349,8 +356,15 @@ public class CortaCesped implements ActionListener {
     	this.cortacespedColumna = posicionColumna;
     	
     	System.out.println("Mover a (" + posicionFila + "," + posicionColumna + ")");
+    	
+    	try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
     	// En este momento se debe actualizar la ventana
-    	lienzo.repaint(1000000L);
+    	lienzo.repaint();
     }
     
     public void cortarCesped() {
@@ -359,11 +373,19 @@ public class CortaCesped implements ActionListener {
     		matriz[cortacespedFila][cortacespedColumna] = "Césped bajo";
     		System.out.println("Cortar césped en (" + cortacespedFila + "," + cortacespedColumna + ")");
     	}
+    	
+    	try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
     	// En este momento se debe actualizar la ventana
-    	lienzo.repaint(10000000000L);
+    	lienzo.repaint();
     }
     
     public static void main(String[] args){
         CortaCesped cc = new CortaCesped();
     }
+    
 }
