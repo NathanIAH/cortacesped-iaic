@@ -13,6 +13,7 @@ import com.iaic.cortacesped.CortaCesped;
 import com.iaic.cortacesped.CortaCesped.Sensor;
 
 
+
 /**
  * 
  * Heurística Hill-Climbing
@@ -25,6 +26,8 @@ import com.iaic.cortacesped.CortaCesped.Sensor;
  * @author Jeray
  *
  */
+
+//Cuac cuac cuac 
 //pepe
 public class HillClimbing {
 	
