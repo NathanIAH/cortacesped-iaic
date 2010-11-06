@@ -12,12 +12,12 @@ import com.iaic.cortacesped.CortaCesped.Sensor;
 
 public class BusquedaPrimeroProfundidad {
 
-	private enum Estado {OCUPADO,	// punto del jardín ocupado por un objeto, no se puede cortar 
+	private enum Estado {OCUPADO,
 			 			 CORTADO,
 						 DESCONOCIDO};
 	
 	private final Point POSICION_INICIAL = new Point(1,1); 
-	Point posicionActual = POSICION_INICIAL;
+	private Point posicionActual = POSICION_INICIAL;
 	private int anchoJardin, largoJardin;
 	private CortaCesped cortaCesped;
 	private Map<Point, Estado> jardinRecorrido;	
@@ -52,8 +52,6 @@ public class BusquedaPrimeroProfundidad {
 	
 	
 	/**
-	 * Si una posición ya estuvo (o está) en la pila no se debe volver a meter (no es una posición válida).
-	 * 
 	 * Corta el césped utilizando la búsqueda primero en profundidad
 	 * 
 	 * @return true si se ha finalizado correctamente
@@ -62,9 +60,8 @@ public class BusquedaPrimeroProfundidad {
 		boolean nodoObjetivo = false;
 		List<Point> nodos = new ArrayList<Point>();
 		nodos.add(0, POSICION_INICIAL);
-		while ((!nodos.isEmpty() && !nodoObjetivo)) {
-			posicionActual = nodos.remove(0);
-
+		Map<Point, List<Point>> movimientosNodos = new HashMap<Point, List<Point>>();
+		while (!nodos.isEmpty() && !nodoObjetivo) {
 			// getEstadoSensores() está implementado en los métodos del cortacésped, 
 			// y devolverá si está ocupado el vecino correspondiente a alguna de las direcciones de 
 			// movimiento (SN, SO, SS, SE)
@@ -84,7 +81,17 @@ public class BusquedaPrimeroProfundidad {
 			if (isNodoObjetivo()) {
 				nodoObjetivo = true;
 			} else {
-				nodos.addAll(0, getPosicionesSiguientes());
+				if (!movimientosNodos.containsKey(posicionActual))
+					movimientosNodos.put(posicionActual, getPosicionesSiguientes());
+				
+				if (movimientosNodos.get(posicionActual).isEmpty()) {
+					nodos.remove(0);
+					posicionActual = nodos.get(0);
+					System.out.println("Vuelve a atrás:");
+				} else {
+					nodos.add(0, movimientosNodos.get(posicionActual).remove(0));
+					posicionActual = nodos.get(0);
+				}
 			}
 		}
 		
@@ -108,7 +115,6 @@ public class BusquedaPrimeroProfundidad {
 
 		return posicionesSiguientes;
 	}
-	
 	
 	private boolean isPosicionSiguienteValida(Point posicion) {
 		return isPosicionDentroJardin(posicion) &&
@@ -156,9 +162,6 @@ public class BusquedaPrimeroProfundidad {
 		return true;
 	}
 
-	/**
-	 * Punto del jardín ocupado o cortado.
-	 */
 	private boolean isPuntoJardinHecho(Entry<Point, Estado> puntoJardin) {
 		return Estado.OCUPADO.equals(puntoJardin.getValue()) ||
 			   Estado.CORTADO.equals(puntoJardin.getValue());
