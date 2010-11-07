@@ -62,11 +62,8 @@ public class BusquedaPrimeroProfundidad {
 		nodos.add(0, POSICION_INICIAL);
 		Map<Point, List<Point>> movimientosNodos = new HashMap<Point, List<Point>>();
 		while (!nodos.isEmpty() && !nodoObjetivo) {
-			// getEstadoSensores() está implementado en los métodos del cortacésped, 
-			// y devolverá si está ocupado el vecino correspondiente a alguna de las direcciones de 
-			// movimiento (SN, SO, SS, SE)
-			memorizarPosicionesOcupadas(cortaCesped.getEstadoSensores());
-			
+			posicionActual = nodos.get(0);
+
 			// mover(int x, int y) está implementado en los métodos del cortacésped, 
 			// y moverá el cortacésped en la dirección (N,O,S,E) relativa a la posición especificada
 			cortaCesped.mover(posicionActual.x, posicionActual.y);
@@ -77,21 +74,22 @@ public class BusquedaPrimeroProfundidad {
 			
 			// memorizar posición cortada
 			jardinRecorrido.put(posicionActual, Estado.CORTADO);			
-			
+
+			// getEstadoSensores() está implementado en los métodos del cortacésped, 
+			// y devolverá si está ocupado el vecino correspondiente a alguna de las direcciones de 
+			// movimiento (SN, SO, SS, SE)
+			memorizarPosicionesOcupadas(cortaCesped.getEstadoSensores());
+
 			if (isNodoObjetivo()) {
 				nodoObjetivo = true;
 			} else {
 				if (!movimientosNodos.containsKey(posicionActual))
 					movimientosNodos.put(posicionActual, getPosicionesSiguientes());
 				
-				if (movimientosNodos.get(posicionActual).isEmpty()) {
+				if (movimientosNodos.get(posicionActual).isEmpty())
 					nodos.remove(0);
-					posicionActual = nodos.get(0);
-					System.out.println("Vuelve a atrás:");
-				} else {
+				else
 					nodos.add(0, movimientosNodos.get(posicionActual).remove(0));
-					posicionActual = nodos.get(0);
-				}
 			}
 		}
 		
