@@ -1,4 +1,4 @@
-package com.iaic.cortacesped.busquedasCiegas;
+package com.iaic.cortacesped.Heuristicas;
 
 import java.awt.Point;
 import java.util.ArrayList;
@@ -6,41 +6,28 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Map.Entry;
 
 import com.iaic.cortacesped.CortaCesped;
 import com.iaic.cortacesped.CortaCesped.Sensor;
 
+public class BusquedaPrimeroProfundidadMejorada {
 
-/**
- * 
- * Búsqueda primero en anchura: primero se expande el nodo raíz, y luego todos los nodos generados
- * por éste; luego sus sucesores, y así sucesivamente.
- * 
- * @author Tino
- *
- */
-public class BusquedaPrimeroAnchura {
-	
-	private enum Estado {OCUPADO,	// punto del jardín ocupado por un objeto, no se puede cortar 
+	private enum Estado {OCUPADO, 
 			 			 CORTADO,
 						 DESCONOCIDO};
 	
 	private final Point POSICION_INICIAL = new Point(1,1); 
-	private final int MAXIMO_NUMERO_REGRESOS_POSICION_ANTERIOR = 2;
 	private Point posicionActual = POSICION_INICIAL;
 	private Point posicionAnterior = POSICION_INICIAL;
 	private int anchoJardin, largoJardin;
-	private int contadorRegresosPosicionAnterior = 0;
 	private CortaCesped cortaCesped;
-	private Map<Point, Estado> jardinRecorrido;	// mapa con el estado de los puntos del jardín, 
-												// conocidos por el cortacésped
-	
+	private Map<Point, Estado> jardinRecorrido;	
 
+	
 	// no se permite utilizar el constructor por defecto
 	@SuppressWarnings("unused")
-	private BusquedaPrimeroAnchura() {};
+	private BusquedaPrimeroProfundidadMejorada() {};
 
 	/**
 	 * Constructor con las dimensiones del jardín como parámetros, para inicializar la memoria 
@@ -51,7 +38,7 @@ public class BusquedaPrimeroAnchura {
 	 * @param largoJardin
 	 * @param cortaCesped
 	 */
-	public BusquedaPrimeroAnchura(int anchoJardin, int largoJardin, CortaCesped cortaCesped) {
+	public BusquedaPrimeroProfundidadMejorada(int anchoJardin, int largoJardin, CortaCesped cortaCesped) {
 		this.anchoJardin = anchoJardin;
 		this.largoJardin = largoJardin;
 		this.cortaCesped = cortaCesped;
@@ -67,73 +54,105 @@ public class BusquedaPrimeroAnchura {
 	
 	
 	/**
-	 * Corta el césped utilizando la búsqueda primero en anchura
+	 * Corta el césped utilizando la búsqueda primero en profundidad
 	 * 
 	 * @return true si se ha finalizado correctamente
 	 */
 	public boolean cortarCesped() {
-		while (!isNodoObjetivo()) {
-			// getEstadoSensores() está implementado en los métodos del cortacésped, 
-			// y devolverá si está ocupado el vecino correspondiente a alguna de las direcciones de 
-			// movimiento (SN, SO, SS, SE)
-			memorizarPosicionesOcupadas(cortaCesped.getEstadoSensores());
-			
-			// moverse en una dirección que detecte libre y por dónde preferiblemente no haya pasado aún
-			Point posicionSiguiente = getPosicionSiguiente();
-			
-			// se evita entrar en un bucle infinito
-			if (isMaximoNumeroRegresosPosicionAnterior())
-				posicionSiguiente = getPosicionSiguienteAleatoria();
-			
-			// no tiene hacia dónde moverse
-			if (posicionSiguiente == null)
-				return false;
+		boolean nodoObjetivo = false;
+		List<Point> nodos = new ArrayList<Point>();
+		nodos.add(0, POSICION_INICIAL);
+		Map<Point, List<Point>> movimientosNodosSiguienteDesconocido = new HashMap<Point, List<Point>>();
+		Map<Point, List<Point>> movimientosNodosHaciaMaximoDesconocidos = new HashMap<Point, List<Point>>();
+		Map<Point, List<Point>> movimientosNodosVolverPosicionInicial = new HashMap<Point, List<Point>>();
+		while (!nodos.isEmpty() && !nodoObjetivo) {
+			posicionAnterior = posicionActual;
+			posicionActual = nodos.get(0);
 
-			if (isPosicionAnterior(posicionSiguiente)) {
-				contadorRegresosPosicionAnterior++;
-			} else {
-				contadorRegresosPosicionAnterior = 0;
-			}
-			
 			// mover(int x, int y) está implementado en los métodos del cortacésped, 
 			// y moverá el cortacésped en la dirección (N,O,S,E) relativa a la posición especificada
-			cortaCesped.mover(posicionSiguiente.x, posicionSiguiente.y);
-			
-			posicionAnterior = posicionActual;
-			posicionActual = posicionSiguiente;
+			cortaCesped.mover(posicionActual.x, posicionActual.y);
 			
 			// cortarCesped() está implementado en los métodos del cortacésped, 
 			// y cortará el césped en caso de que el fotosensor detecte césped lo suficientemente alto
 			cortaCesped.cortarCesped();
 			
 			// memorizar posición cortada
-			jardinRecorrido.put(posicionActual, Estado.CORTADO);
+			jardinRecorrido.put(posicionActual, Estado.CORTADO);			
+
+			// getEstadoSensores() está implementado en los métodos del cortacésped, 
+			// y devolverá si está ocupado el vecino correspondiente a alguna de las direcciones de 
+			// movimiento (SN, SO, SS, SE)
+			memorizarPosicionesOcupadas(cortaCesped.getEstadoSensores());
+
+			if (isNodoObjetivo()) {
+				nodoObjetivo = true;
+			} else {
+				if (isJardinRecorridoCompletamente()) {
+					if (!movimientosNodosVolverPosicionInicial.containsKey(posicionActual))
+						movimientosNodosVolverPosicionInicial.put(posicionActual, getPosicionesSiguientesParaVolverPosicionInicial());
+
+					if (movimientosNodosVolverPosicionInicial.get(posicionActual).isEmpty())
+						nodos.remove(0);
+					else
+						nodos.add(0, movimientosNodosVolverPosicionInicial.get(posicionActual).remove(0));
+				} else { 
+					if (!movimientosNodosSiguienteDesconocido.containsKey(posicionActual))
+						movimientosNodosSiguienteDesconocido.put(posicionActual, getPosicionesSiguientesDesconocidas());
+					else
+						movimientosNodosSiguienteDesconocido.put(posicionActual, actualizarPosicionesSiguientesDesconocidas(movimientosNodosSiguienteDesconocido.get(posicionActual)));
+					
+					if (!movimientosNodosSiguienteDesconocido.get(posicionActual).isEmpty())
+						nodos.add(0, movimientosNodosSiguienteDesconocido.get(posicionActual).remove(0));
+					else { 
+						if (!movimientosNodosHaciaMaximoDesconocidos.containsKey(posicionActual))
+							movimientosNodosHaciaMaximoDesconocidos.put(posicionActual, getPosicionesSiguientesHaciaMaximoDesconocidas());
+						else
+							movimientosNodosHaciaMaximoDesconocidos.put(posicionActual, actualizarPosicionesSiguientesHaciaMaximoDesconocidas(movimientosNodosHaciaMaximoDesconocidos.get(posicionActual)));
+						
+						if(!movimientosNodosHaciaMaximoDesconocidos.get(posicionActual).isEmpty())
+							nodos.add(0, movimientosNodosHaciaMaximoDesconocidos.get(posicionActual).remove(0));
+						else
+							nodos.remove(0);
+					}
+				}
+			}
 		}
 		
-		return true;
+		return nodoObjetivo;
 	}
-
-	/**	
-	 * Si el jardín se ha recorrido completamente, se vuelve hacia la posición inicial. De lo contrario, se avanza
-	 * hacia una posición válida y desconocida.
-	 * En caso de que se haya pasado previemente por todas las posiciones válidas para el siguiente movimiento, 
-	 * se optará por dirigirse hacia la dirección con mayor número de posiciones desconocidas.
-	 */
-	private Point getPosicionSiguiente() {
-		if(isJardinRecorridoCompletamente())
-			return getPosicionSiguienteParaVolverPosicionInicial();
+	
+	private List<Point> getPosicionesSiguientesDesconocidas() {
+		List<Point> posicionesSiguientesDesconocidas = new ArrayList<Point>();
 		
 		if (isPosicionSiguienteValidaAndDesconocida(getPosicionEste()))
-			return getPosicionEste();
+			posicionesSiguientesDesconocidas.add(getPosicionEste());
 		
 		if (isPosicionSiguienteValidaAndDesconocida(getPosicionSur()))
-			return getPosicionSur();
+			posicionesSiguientesDesconocidas.add(getPosicionSur());
 		
 		if (isPosicionSiguienteValidaAndDesconocida(getPosicionOeste()))
-			return getPosicionOeste();
+			posicionesSiguientesDesconocidas.add(getPosicionOeste());
 		
 		if (isPosicionSiguienteValidaAndDesconocida(getPosicionNorte()))
-			return getPosicionNorte();				
+			posicionesSiguientesDesconocidas.add(getPosicionNorte());
+		
+		return posicionesSiguientesDesconocidas;
+	}
+	
+	private List<Point> actualizarPosicionesSiguientesDesconocidas(List<Point> nodos) {
+		List<Point> posicionesSiguientesDesconocidas = new ArrayList<Point>();
+		
+		for (Point nodo : nodos) {
+			if (isPosicionSiguienteValidaAndDesconocida(nodo))
+				posicionesSiguientesDesconocidas.add(nodo);
+		}
+		
+		return posicionesSiguientesDesconocidas;
+	}	
+		
+	private List<Point> getPosicionesSiguientesHaciaMaximoDesconocidas() {
+		List<Point> posicionesSiguientesHaciaMaximoDesconocidas = new ArrayList<Point>();
 		
 		Map<Integer, Point> numeroPosicionesDesconocidasMap = new HashMap<Integer, Point>();
 		numeroPosicionesDesconocidasMap.put(getNumeroPosicionesDesconocidasNorte(), getPosicionNorte());
@@ -146,56 +165,58 @@ public class BusquedaPrimeroAnchura {
 			
 			Point posicionSiguiente = numeroPosicionesDesconocidasMap.get(maximoNumeroPosicionesDesconocidas);
 			if (isPosicionSiguienteValida(posicionSiguiente))
-				return posicionSiguiente;
-			else
-				numeroPosicionesDesconocidasMap.remove(maximoNumeroPosicionesDesconocidas);
+				posicionesSiguientesHaciaMaximoDesconocidas.add(posicionSiguiente);
+			
+			numeroPosicionesDesconocidasMap.remove(maximoNumeroPosicionesDesconocidas);
 		}
 		
-		return null;
+		return posicionesSiguientesHaciaMaximoDesconocidas;
 	}
 	
-	/*
-	 * Se optará por avanzar hacia el Noroeste, dónde se sitúa la posición inicial.
-	 */
-	private Point getPosicionSiguienteParaVolverPosicionInicial() {
+	private List<Point> actualizarPosicionesSiguientesHaciaMaximoDesconocidas(List<Point> nodos) {
+		List<Point> posicionesSiguientesHaciaMaximoDesconocidas = new ArrayList<Point>();
+		
+		Map<Integer, Point> numeroPosicionesDesconocidasMap = new HashMap<Integer, Point>();
+		for(Point nodo : nodos) {
+			if (nodo.equals(getPosicionNorte()))
+				numeroPosicionesDesconocidasMap.put(getNumeroPosicionesDesconocidasNorte(), nodo);
+			else if (nodo.equals(getPosicionOeste()))
+				numeroPosicionesDesconocidasMap.put(getNumeroPosicionesDesconocidasOeste(), nodo);
+			else if (nodo.equals(getPosicionSur()))
+				numeroPosicionesDesconocidasMap.put(getNumeroPosicionesDesconocidasSur(), nodo);
+			else if (nodo.equals(getPosicionEste()))
+				numeroPosicionesDesconocidasMap.put(getNumeroPosicionesDesconocidasEste(), nodo);
+		}
+		
+		while (!numeroPosicionesDesconocidasMap.isEmpty()) {
+			int maximoNumeroPosicionesDesconocidas = Collections.max(numeroPosicionesDesconocidasMap.keySet());
+			
+			Point posicionSiguiente = numeroPosicionesDesconocidasMap.get(maximoNumeroPosicionesDesconocidas);
+			if (isPosicionSiguienteValida(posicionSiguiente))
+				posicionesSiguientesHaciaMaximoDesconocidas.add(posicionSiguiente);
+			
+			numeroPosicionesDesconocidasMap.remove(maximoNumeroPosicionesDesconocidas);
+		}
+		
+		return posicionesSiguientesHaciaMaximoDesconocidas;
+	}
+	
+	private List<Point> getPosicionesSiguientesParaVolverPosicionInicial() {
+		List<Point> posicionesSiguientesParaVolverPosicionInicial = new ArrayList<Point>();
 		
 		if (isPosicionSiguienteValidaAndDistintaPosicionAnterior(getPosicionNorte()))
-			return getPosicionNorte();
+			posicionesSiguientesParaVolverPosicionInicial.add(getPosicionNorte());
 
 		if (isPosicionSiguienteValidaAndDistintaPosicionAnterior(getPosicionOeste()))
-			return getPosicionOeste();
+			posicionesSiguientesParaVolverPosicionInicial.add(getPosicionOeste());
 		
 		if (isPosicionSiguienteValidaAndDistintaPosicionAnterior(getPosicionSur()))
-			return getPosicionSur();
+			posicionesSiguientesParaVolverPosicionInicial.add(getPosicionSur());
 		
 		if (isPosicionSiguienteValidaAndDistintaPosicionAnterior(getPosicionEste()))
-			return getPosicionEste();				
+			posicionesSiguientesParaVolverPosicionInicial.add(getPosicionEste());
 		
-		return getPosicionSiguienteAleatoria();
-	}
-	
-	private Point getPosicionSiguienteAleatoria() {
-		List<Point> posicionSiguienteAleatoriaList = new ArrayList<Point>();
-		
-		if (isPosicionSiguienteValida(getPosicionNorte()))
-			posicionSiguienteAleatoriaList.add(getPosicionNorte());
-
-		if (isPosicionSiguienteValida(getPosicionOeste()))
-			posicionSiguienteAleatoriaList.add(getPosicionOeste());
-		
-		if (isPosicionSiguienteValida(getPosicionSur()))
-			posicionSiguienteAleatoriaList.add(getPosicionSur());
-		
-		if (isPosicionSiguienteValida(getPosicionEste()))
-			posicionSiguienteAleatoriaList.add(getPosicionEste());	
-		
-		
-		if (posicionSiguienteAleatoriaList.isEmpty())
-			return null;
-		else {		
-			int numeroAleatorio = new Random().nextInt(posicionSiguienteAleatoriaList.size());
-			return posicionSiguienteAleatoriaList.get(numeroAleatorio);
-		}
+		return posicionesSiguientesParaVolverPosicionInicial;
 	}
 	
 	private int getNumeroPosicionesDesconocidasNorte() {
@@ -260,7 +281,7 @@ public class BusquedaPrimeroAnchura {
 		}
 		
 		return numeroPosicionesDesconocidasEste;
-	}
+	}	
 	
 	private boolean isPosicionSiguienteValidaAndDesconocida(Point posicion) {
 		return isPosicionSiguienteValida(posicion) &&
@@ -284,10 +305,6 @@ public class BusquedaPrimeroAnchura {
 			   posicion.y >= 1;
 	}
 
-	private boolean isMaximoNumeroRegresosPosicionAnterior() {
-		return contadorRegresosPosicionAnterior >= MAXIMO_NUMERO_REGRESOS_POSICION_ANTERIOR;
-	}
-	
 	private boolean isPosicionAnterior(Point posicion) {
 		return posicionAnterior.equals(posicion);
 	}
@@ -299,7 +316,7 @@ public class BusquedaPrimeroAnchura {
 	private boolean isPosicionDesconocida(Point posicion) {
 		return Estado.DESCONOCIDO.equals(jardinRecorrido.get(posicion));
 	}
-
+	
 	private void memorizarPosicionesOcupadas(Map<Sensor, Boolean> estadoSensores) {
 		if (estadoSensores.get(Sensor.NORTE))
 			jardinRecorrido.put(getPosicionNorte(), Estado.OCUPADO);
@@ -330,9 +347,6 @@ public class BusquedaPrimeroAnchura {
 		return true;
 	}
 
-	/**
-	 * Punto del jardín ocupado o cortado.
-	 */
 	private boolean isPuntoJardinHecho(Entry<Point, Estado> puntoJardin) {
 		return Estado.OCUPADO.equals(puntoJardin.getValue()) ||
 			   Estado.CORTADO.equals(puntoJardin.getValue());
