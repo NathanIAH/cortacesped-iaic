@@ -13,6 +13,7 @@ import java.awt.Label;
 import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
+import java.awt.Point;
 import java.awt.TextField;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -28,7 +29,9 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.iaic.cortacesped.busquedasCiegas.BusquedaPrimeroAnchura;
+import com.iaic.cortacesped.Heuristicas.BusquedaPrimeroProfundidadMejorada;
+import com.iaic.cortacesped.Heuristicas.HillClimbing;
+import com.iaic.cortacesped.busquedasCiegas.BusquedaPrimeroProfundidad;
 
 public class CortaCesped implements ActionListener {
 	
@@ -141,6 +144,59 @@ public class CortaCesped implements ActionListener {
 			}
 		}
 	}
+	private class VentanaFinal implements ActionListener {
+		private Frame ventana_final;
+		public VentanaFinal() {
+			ventana_final = new Frame("Punto final");
+			ventana_final.setSize(300, 100);
+			ventana_final.setResizable(false);
+			ventana_final.setLayout(new GridLayout(3,2));
+			ventana_final.addWindowListener(new WindowListener() {
+				public void windowOpened(WindowEvent e) {}
+				public void windowActivated(WindowEvent e) {}
+				public void windowDeactivated(WindowEvent e) {}
+				public void windowIconified(WindowEvent e) {}
+				public void windowDeiconified(WindowEvent e) {}
+				public void windowClosed(WindowEvent e) {}
+				public void windowClosing(WindowEvent e) {
+					e.getWindow().setVisible(false);
+					e.getWindow().dispose();
+				}
+			});
+			// Añadir los elementos de la ventana Dimensiones
+			Label l1 = new Label("Punto final (x): ");
+			TextField tf1 = new TextField();
+			Label l2 = new Label("Punto final (y): ");
+			TextField tf2 = new TextField();			
+			Button boton = new Button("Guardar");
+			boton.addActionListener(this);
+    
+			ventana_final.add(l1);
+			ventana_final.add(tf1);
+			ventana_final.add(l2);
+			ventana_final.add(tf2);			
+			ventana_final.add(boton);
+        
+			ventana_final.setVisible(true);
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			String texto = ((Button)e.getSource()).getLabel();
+			System.out.println("Boton presionado: " + texto);
+			if (texto.equals("Guardar")) {
+				TextField tf_filas = (TextField)ventana_final.getComponent(1);
+				int x = Integer.parseInt(tf_filas.getText());
+				TextField tf_columnas = (TextField)ventana_final.getComponent(3);
+				int y = Integer.parseInt(tf_columnas.getText());
+				puntoFinal = new Point(x,y);
+				
+				ventana_final.setVisible(false);
+				ventana_final.dispose();
+				
+	        	ejecutarHillClimbing();				
+			}
+		}
+	}	
 	private class VentanaObstaculos implements ActionListener {
 		private Frame ventana_obstaculos;
 		public VentanaObstaculos() {
@@ -248,6 +304,7 @@ public class CortaCesped implements ActionListener {
 	private final int MARGENFILA = 40;
 	private int filas;
 	private int columnas;
+	private Point puntoFinal = new Point();
 	private String matriz[][];
 	private final int CELDACOL = 26;
 	private final int MARGENCOL = 40;
@@ -285,8 +342,13 @@ public class CortaCesped implements ActionListener {
         
         Menu ejecutar = new Menu("Ejecutar");
         MenuItem ejecutar_algciego = new MenuItem("Alg. Ciego");
+        MenuItem ejecutar_heutodo = new MenuItem("Heu. Cortar Todo");
+        MenuItem ejecutar_heuzona = new MenuItem("Heu. Cortar Zona");
+        
         
         ejecutar.add(ejecutar_algciego);
+        ejecutar.add(ejecutar_heutodo);
+        ejecutar.add(ejecutar_heuzona);
         
         Menu debug = new Menu("Debug");
         MenuItem debug_debug = new MenuItem ("Debug");
@@ -300,6 +362,8 @@ public class CortaCesped implements ActionListener {
         cargar_obstaculos.addActionListener(this);
         generar_instancia.addActionListener(this);
         ejecutar_algciego.addActionListener(this);
+        ejecutar_heutodo.addActionListener(this);
+        ejecutar_heuzona.addActionListener(this);
         debug_debug.addActionListener(this);
 
         menu.add(archivo);
@@ -342,7 +406,7 @@ public class CortaCesped implements ActionListener {
         if (texto.equals("Cargar")) {
         	FileDialog fd = new FileDialog(ventana, "Cargar configuración");
         	fd.show();
-        	String nombre_archivo = fd.getFile();
+        	String nombre_archivo = fd.getDirectory() + fd.getFile();
         	try {
         		FileReader fr = new FileReader(nombre_archivo);
         		BufferedReader br = new BufferedReader(fr);
@@ -377,11 +441,11 @@ public class CortaCesped implements ActionListener {
         else if (texto.equals("Guardar")) {
         	Calendar  c = Calendar.getInstance();
         	String dia = Integer.toString(c.get(Calendar.DATE));
-        	String mes = Integer.toString(c.get(Calendar.MONTH));
-        	String año = Integer.toString(c.get(Calendar.YEAR));
+        	String mes = Integer.toString(c.get(Calendar.MONTH + 1));
+        	String anio = Integer.toString(c.get(Calendar.YEAR));
         	String hora = Integer.toString(c.get(Calendar.HOUR));
         	String minuto = Integer.toString(c.get(Calendar.MINUTE)); 
-        	String nombre_archivo = "datos_" + dia + mes + año + "_" + hora + minuto + ".dat";
+        	String nombre_archivo = "datos_" + dia + mes + anio + "_" + hora + minuto + ".dat";
         	// Prepara el fichero de salida:
         	// La primera línea contiene las dimensiones (filas y columnas) separadas por un espacio
         	String guardar = this.filas + " " + this.columnas + "\n";
@@ -390,7 +454,7 @@ public class CortaCesped implements ActionListener {
         	// La tercera línea contiene dónde está el césped bajo
         	guardar += cespedbajo;
 			try {		
-				FileWriter fw = new FileWriter(nombre_archivo);
+				FileWriter fw = new FileWriter("C:\\" + nombre_archivo);
 				PrintWriter pw = new PrintWriter(fw);
 				pw.print(guardar);
 				fw.close();
@@ -413,15 +477,13 @@ public class CortaCesped implements ActionListener {
         	dibujarInstancia();
         }
         else if (texto.equals("Alg. Ciego")) {
-        	final BusquedaPrimeroAnchura busquedaPrimeroAnchura = new BusquedaPrimeroAnchura(columnas, filas, this);
-//        	final BusquedaPrimeroProfundidad busquedaPrimeroProfundidad = new BusquedaPrimeroProfundidad(columnas, filas, this);
+        	final BusquedaPrimeroProfundidad busquedaPrimeroProfundidad = new BusquedaPrimeroProfundidad(columnas, filas, this);
 
         	// ejecutamos en un nuevo hilo para permitir el repintado del canvas
         	Runnable miRunnable = new Runnable()
         	{
         		public void run() {
-        			boolean resultado = busquedaPrimeroAnchura.cortarCesped();
-//        			boolean resultado = busquedaPrimeroProfundidad.cortarCesped();
+        			boolean resultado = busquedaPrimeroProfundidad.cortarCesped();
         			if (resultado)
         				System.out.println("Objetivo cumplido");
         			else
@@ -431,10 +493,48 @@ public class CortaCesped implements ActionListener {
         	Thread hilo = new Thread (miRunnable);
         	hilo.start();
         }
+        else if (texto.equals("Heu. Cortar Todo")) {
+        	final BusquedaPrimeroProfundidadMejorada busquedaPrimeroProfundidad = new BusquedaPrimeroProfundidadMejorada(columnas, filas, this);
+
+        	// ejecutamos en un nuevo hilo para permitir el repintado del canvas
+        	Runnable miRunnable = new Runnable()
+        	{
+        		public void run() {
+        			boolean resultado = busquedaPrimeroProfundidad.cortarCesped();
+        			if (resultado)
+        				System.out.println("Objetivo cumplido");
+        			else
+        				System.out.println("Objetivo NO cumplido");
+        		}
+        	};
+        	Thread hilo = new Thread (miRunnable);
+        	hilo.start();
+        }
+        else if (texto.equals("Heu. Cortar Zona")) {
+        	VentanaFinal vf = new VentanaFinal();
+        }
         else if (texto.equals("Debug")) {		// Sólo para realizar ciertas pruebas
         	mover(5,5);
         }
     }
+
+	private void ejecutarHillClimbing() {
+		final HillClimbing hillClimbing = new HillClimbing(columnas, filas, puntoFinal, this);
+
+		// ejecutamos en un nuevo hilo para permitir el repintado del canvas
+		Runnable miRunnable = new Runnable()
+		{
+			public void run() {
+				boolean resultado = hillClimbing.cortarCesped();
+				if (resultado)
+					System.out.println("Objetivo cumplido");
+				else
+					System.out.println("Objetivo NO cumplido");
+			}
+		};
+		Thread hilo = new Thread (miRunnable);
+		hilo.start();
+	}
     
     public void dibujarInstancia() {
     	lienzo = new Lienzo();
@@ -484,7 +584,7 @@ public class CortaCesped implements ActionListener {
     	System.out.println("Mover a (" + posicionFila + "," + posicionColumna + ")");
     	
     	try {
-			Thread.sleep(100);
+			Thread.sleep(50);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -498,16 +598,16 @@ public class CortaCesped implements ActionListener {
     	if (matriz[cortacespedFila][cortacespedColumna].equals("Césped alto")) {
     		matriz[cortacespedFila][cortacespedColumna] = "Césped bajo";
     		System.out.println("Cortar césped en (" + cortacespedFila + "," + cortacespedColumna + ")");
+
+    		try {
+    			Thread.sleep(50);
+    		} catch (InterruptedException e) {
+    			e.printStackTrace();
+    		}
+
+    		// En este momento se debe actualizar la ventana
+    		lienzo.repaint();
     	}
-    	
-    	try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-    	// En este momento se debe actualizar la ventana
-    	lienzo.repaint();
     }
     
     public static void main(String[] args){

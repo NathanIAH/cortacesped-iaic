@@ -6,8 +6,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.Map.Entry;
 
 import com.iaic.cortacesped.CortaCesped;
 import com.iaic.cortacesped.CortaCesped.Sensor;
@@ -27,8 +25,6 @@ import com.iaic.cortacesped.CortaCesped.Sensor;
  *
  */
 
-//Cuac cuac cuac 
-//pepe
 public class HillClimbing {
 	
 	private enum Estado	{OCUPADO, 
@@ -37,17 +33,12 @@ public class HillClimbing {
 	
 	private final Point POSICION_INICIAL = new Point(1,1); 
 	
-	// TODO: Utilizar la interfaz para colocar aquÃ­ el nodo final
-	private final Point nObjetivo = new Point (11,10);
-	private final int MAXIMO_NUMERO_REGRESOS_POSICION_ANTERIOR = 2;
+	private Point nObjetivo = new Point();
 	private Point posicionActual = POSICION_INICIAL;
-	private Point posicionAnterior = POSICION_INICIAL;
 	private int anchoJardin, largoJardin;
-	private int contadorRegresosPosicionAnterior = 0;
 	private CortaCesped cortaCesped;
 	private Map<Point, Estado> jardinRecorrido;	
 
-//pepe2
 	@SuppressWarnings("unused")
 	private HillClimbing() {};
 
@@ -59,10 +50,11 @@ public class HillClimbing {
 	 * @param cortaCesped
 	 * @param nObjetivo
 	 */
-	public HillClimbing(int anchoJardin, int largoJardin, CortaCesped cortaCesped) {
+	public HillClimbing(int anchoJardin, int largoJardin, Point nObjetivo, CortaCesped cortaCesped) {
 		this.anchoJardin = anchoJardin;
 		this.largoJardin = largoJardin;
 		this.cortaCesped = cortaCesped;
+		this.nObjetivo = nObjetivo;
 		this.jardinRecorrido = new HashMap<Point, Estado>();
 		
 		for (int i = 1; i <= anchoJardin; i++) {
@@ -80,37 +72,43 @@ public class HillClimbing {
 	 * @return true si se ha finalizado correctamente
 	 */
 	public boolean cortarCesped() {
-		//Mientras no se consiga el objetivo
-		while (!isNodoObjetivo()) {
-			memorizarPosicionesOcupadas(cortaCesped.getEstadoSensores());  //Captamos la informaciÃ³n de los sensores y la memorizamos
-			Point posicionSiguiente = getPosicionSiguiente();  //Se obtiene la posiciÃ³n siguiente mediante el mÃ©todo getPosicionSiguiente()
+		boolean nodoObjetivo = false;
+		List<Point> nodos = new ArrayList<Point>();
+		nodos.add(0, POSICION_INICIAL);
+		Map<Point, List<Point>> movimientosNodos = new HashMap<Point, List<Point>>();
+		while (!nodos.isEmpty() && !nodoObjetivo) {
+			posicionActual = nodos.get(0);
+
+			// mover(int x, int y) está implementado en los métodos del cortacésped, 
+			// y moverá el cortacésped en la dirección (N,O,S,E) relativa a la posición especificada
+			cortaCesped.mover(posicionActual.x, posicionActual.y);
 			
-																			/**		// se evita entrar en un bucle infinito
-																					if (isMaximoNumeroRegresosPosicionAnterior())
-																						posicionSiguiente = getPosicionSiguienteAleatoria();
-																			**/		
-			// No encuentra hacia donde moverse
-			if (posicionSiguiente == null)
-				return false;
-														/**
-																	//Contamos si hemos de volver sobre la posiciÃ³n anterior
-																	if (isPosicionAnterior(posicionSiguiente)) {
-																		contadorRegresosPosicionAnterior++;
-																	} else {
-																		contadorRegresosPosicionAnterior = 0;
-																	}
-														**/			
-			//Movemos el cortacesped hacia la posiciÃ³n siguiente y actualizamos las variables de posiciÃ³n
-			cortaCesped.mover(posicionSiguiente.x, posicionSiguiente.y);
-			posicionAnterior = posicionActual;
-			posicionActual = posicionSiguiente;
-			
-			//Cortamos el cesped de la posiciÃ³n actual y actualizamos el estado de dicha posiciÃ³n
+			// cortarCesped() está implementado en los métodos del cortacésped, 
+			// y cortará el césped en caso de que el fotosensor detecte césped lo suficientemente alto
 			cortaCesped.cortarCesped();
-			jardinRecorrido.put(posicionActual, Estado.CORTADO);
+			
+			// memorizar posición cortada
+			jardinRecorrido.put(posicionActual, Estado.CORTADO);			
+
+			// getEstadoSensores() está implementado en los métodos del cortacésped, 
+			// y devolverá si está ocupado el vecino correspondiente a alguna de las direcciones de 
+			// movimiento (SN, SO, SS, SE)
+			memorizarPosicionesOcupadas(cortaCesped.getEstadoSensores());
+
+			if (isNodoObjetivo()) {
+				nodoObjetivo = true;
+			} else {
+				if (!movimientosNodos.containsKey(posicionActual))
+					movimientosNodos.put(posicionActual, getPosicionesSiguientes());
+				
+				if (movimientosNodos.get(posicionActual).isEmpty())
+					nodos.remove(0);
+				else
+					nodos.add(0, movimientosNodos.get(posicionActual).remove(0));
+			}
 		}
 		
-		return true;
+		return nodoObjetivo;
 	}
 
 	/*
@@ -118,9 +116,8 @@ public class HillClimbing {
 	 * Calcula el siguiente punto en funciÃ³n de la distancia con el punto de destino e introduce en el mapa los distintos hijos
 	 * 
 	 */
-	private Point getPosicionSiguiente() {
+	private List<Point> getPosicionesSiguientes() {
 		Map<Integer, Point> distanciasAlObjetivo = new HashMap<Integer, Point>();
-
 		if (isPosicionSiguienteValidaAndDesconocida(getPosicionEste()))
 			distanciasAlObjetivo.put(getDistanciaObjetivo(getPosicionEste()), getPosicionEste());
 		
@@ -134,61 +131,18 @@ public class HillClimbing {
 			distanciasAlObjetivo.put(getDistanciaObjetivo(getPosicionNorte()), getPosicionNorte());
 		
 		
+		List<Point> posicionesSiguientes = new ArrayList<Point>();
 		while (!distanciasAlObjetivo.isEmpty()) {
 			int distanciaMinima = Collections.min(distanciasAlObjetivo.keySet());
 			
 			Point posicionSiguiente = distanciasAlObjetivo.get(distanciaMinima);
 			if (isPosicionSiguienteValida(posicionSiguiente))
-				return posicionSiguiente;
-			else
-				distanciasAlObjetivo.remove(distanciaMinima);
+				posicionesSiguientes.add(posicionSiguiente);
+
+			distanciasAlObjetivo.remove(distanciaMinima);
 		}
 		
-		return null;
-	}
-	
-	/*
-	 * 
-	 */
-	private Point getPosicionSiguienteParaVolverPosicionInicial() {
-		
-		if (isPosicionSiguienteValidaAndDistintaPosicionAnterior(getPosicionNorte()))
-			return getPosicionNorte();
-
-		if (isPosicionSiguienteValidaAndDistintaPosicionAnterior(getPosicionOeste()))
-			return getPosicionOeste();
-		
-		if (isPosicionSiguienteValidaAndDistintaPosicionAnterior(getPosicionSur()))
-			return getPosicionSur();
-		
-		if (isPosicionSiguienteValidaAndDistintaPosicionAnterior(getPosicionEste()))
-			return getPosicionEste();				
-		
-		return getPosicionSiguienteAleatoria();
-	}
-	
-	private Point getPosicionSiguienteAleatoria() {
-		List<Point> posicionSiguienteAleatoriaList = new ArrayList<Point>();
-		
-		if (isPosicionSiguienteValida(getPosicionNorte()))
-			posicionSiguienteAleatoriaList.add(getPosicionNorte());
-
-		if (isPosicionSiguienteValida(getPosicionOeste()))
-			posicionSiguienteAleatoriaList.add(getPosicionOeste());
-		
-		if (isPosicionSiguienteValida(getPosicionSur()))
-			posicionSiguienteAleatoriaList.add(getPosicionSur());
-		
-		if (isPosicionSiguienteValida(getPosicionEste()))
-			posicionSiguienteAleatoriaList.add(getPosicionEste());	
-		
-		
-		if (posicionSiguienteAleatoriaList.isEmpty())
-			return null;
-		else {		
-			int numeroAleatorio = new Random().nextInt(posicionSiguienteAleatoriaList.size());
-			return posicionSiguienteAleatoriaList.get(numeroAleatorio);
-		}
+		return posicionesSiguientes;
 	}
 	
 	private int getDistanciaObjetivo(Point  nHijo) {
@@ -204,80 +158,11 @@ public class HillClimbing {
 		else
 			distancia += nObjetivo.y - nHijo.y;
 		return distancia;
-}
-	
-	private int getNumeroPosicionesDesconocidasNorte() {
-		// si no existen posiciones al Norte
-		if(posicionActual.y == 1)
-			return 0;
-
-		int numeroPosicionesDesconocidasNorte = 0;
-		for (int i = 1; i <= anchoJardin; i++) {
-			for (int j = posicionActual.y - 1; j >= 1; j--) {
-				if(Estado.DESCONOCIDO.equals(jardinRecorrido.get(new Point(i,j))))
-					numeroPosicionesDesconocidasNorte++;
-			}
-		}
-		
-		return numeroPosicionesDesconocidasNorte;
-	}
-	
-	private int getNumeroPosicionesDesconocidasOeste() {
-		// si no existen posiciones al Oeste
-		if(posicionActual.x == 1)
-			return 0;
-
-		int numeroPosicionesDesconocidasOeste = 0;
-		for (int i = posicionActual.x - 1; i >= 1; i--) {
-			for (int j = 1; j <= largoJardin; j++) {
-				if(Estado.DESCONOCIDO.equals(jardinRecorrido.get(new Point(i,j))))
-					numeroPosicionesDesconocidasOeste++;
-			}
-		}
-		
-		return numeroPosicionesDesconocidasOeste;
-	}
-	
-	private int getNumeroPosicionesDesconocidasSur() {
-		// si no existen posiciones al Sur
-		if(posicionActual.y == largoJardin)
-			return 0;
-
-		int numeroPosicionesDesconocidasSur = 0;
-		for (int i = 1; i <= anchoJardin; i++) {
-			for (int j = posicionActual.y + 1; j <= largoJardin; j++) {
-				if(Estado.DESCONOCIDO.equals(jardinRecorrido.get(new Point(i,j))))
-					numeroPosicionesDesconocidasSur++;
-			}
-		}
-		
-		return numeroPosicionesDesconocidasSur;
-	}
-	
-	private int getNumeroPosicionesDesconocidasEste() {
-		// si no existen posiciones al Este
-		if(posicionActual.x == anchoJardin)
-			return 0;
-
-		int numeroPosicionesDesconocidasEste = 0;
-		for (int i = posicionActual.x + 1; i <= anchoJardin; i++) {
-			for (int j = 1; j <= largoJardin; j++) {
-				if(Estado.DESCONOCIDO.equals(jardinRecorrido.get(new Point(i,j))))
-					numeroPosicionesDesconocidasEste++;
-			}
-		}
-		
-		return numeroPosicionesDesconocidasEste;
 	}
 	
 	private boolean isPosicionSiguienteValidaAndDesconocida(Point posicion) {
 		return isPosicionSiguienteValida(posicion) &&
 			   isPosicionDesconocida(posicion);
-	}
-	
-	private boolean isPosicionSiguienteValidaAndDistintaPosicionAnterior(Point posicion) {
-		return isPosicionSiguienteValida(posicion) &&
-		   	   !isPosicionAnterior(posicion);
 	}
 	
 	private boolean isPosicionSiguienteValida(Point posicion) {
@@ -290,11 +175,6 @@ public class HillClimbing {
 			   posicion.x >= 1 			 &&
 			   posicion.y <= largoJardin &&
 			   posicion.y >= 1;
-	}
-
-	
-	private boolean isPosicionAnterior(Point posicion) {
-		return posicionAnterior.equals(posicion);
 	}
 
 	private boolean isPosicionOcupada(Point posicion) {
@@ -320,31 +200,9 @@ public class HillClimbing {
 		return isPosicionFinal();
 	}
 	
-	private boolean isPosicionInicial() {
-		return posicionActual.equals(POSICION_INICIAL);
-	}	
-
 	private boolean isPosicionFinal() {
 		return posicionActual.equals(nObjetivo);
 	}	
-	
-	private boolean isJardinRecorridoCompletamente() {
-		for (Entry<Point, Estado> puntoJardin : jardinRecorrido.entrySet()) {
-			if (!isPuntoJardinHecho(puntoJardin)) {
-				return false;
-			}
-		}
-		
-		return true;
-	}
-
-	/**
-	 * Punto del jardï¿½n ocupado o cortado.
-	 */
-	private boolean isPuntoJardinHecho(Entry<Point, Estado> puntoJardin) {
-		return Estado.OCUPADO.equals(puntoJardin.getValue()) ||
-			   Estado.CORTADO.equals(puntoJardin.getValue());
-	}
 	
 	private Point getPosicionNorte() {
 		return new Point(posicionActual.x, posicionActual.y - 1);
