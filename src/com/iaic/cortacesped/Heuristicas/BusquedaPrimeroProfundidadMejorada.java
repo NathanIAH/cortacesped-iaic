@@ -170,6 +170,23 @@ public class BusquedaPrimeroProfundidadMejorada {
 			numeroPosicionesDesconocidasMap.remove(maximoNumeroPosicionesDesconocidas);
 		}
 		
+		// añadir al final de la lista el resto de posiciones válidas
+		if (isPosicionSiguienteValida(getPosicionEste()) 
+				&& !posicionesSiguientesHaciaMaximoDesconocidas.contains(getPosicionEste()))
+			posicionesSiguientesHaciaMaximoDesconocidas.add(getPosicionEste());
+		
+		if (isPosicionSiguienteValida(getPosicionSur())
+				&& !posicionesSiguientesHaciaMaximoDesconocidas.contains(getPosicionSur()))
+			posicionesSiguientesHaciaMaximoDesconocidas.add(getPosicionSur());
+		
+		if (isPosicionSiguienteValida(getPosicionOeste())
+				&& !posicionesSiguientesHaciaMaximoDesconocidas.contains(getPosicionOeste()))
+			posicionesSiguientesHaciaMaximoDesconocidas.add(getPosicionOeste());
+		
+		if (isPosicionSiguienteValida(getPosicionNorte())
+				&& !posicionesSiguientesHaciaMaximoDesconocidas.contains(getPosicionNorte()))
+			posicionesSiguientesHaciaMaximoDesconocidas.add(getPosicionNorte());		
+		
 		return posicionesSiguientesHaciaMaximoDesconocidas;
 	}
 	
@@ -196,6 +213,13 @@ public class BusquedaPrimeroProfundidadMejorada {
 				posicionesSiguientesHaciaMaximoDesconocidas.add(posicionSiguiente);
 			
 			numeroPosicionesDesconocidasMap.remove(maximoNumeroPosicionesDesconocidas);
+		}
+		
+		// añadir al final de la lista el resto de posiciones válidas
+		for (Point nodo : nodos) {
+			if (isPosicionSiguienteValida(nodo)
+					&& !posicionesSiguientesHaciaMaximoDesconocidas.contains(nodo))
+				posicionesSiguientesHaciaMaximoDesconocidas.add(nodo);
 		}
 		
 		return posicionesSiguientesHaciaMaximoDesconocidas;

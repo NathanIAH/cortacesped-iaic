@@ -130,18 +130,30 @@ public class HillClimbing {
 		if (isPosicionSiguienteValidaAndDesconocida(getPosicionNorte()))
 			distanciasAlObjetivo.put(getDistanciaObjetivo(getPosicionNorte()), getPosicionNorte());
 		
-		
 		List<Point> posicionesSiguientes = new ArrayList<Point>();
 		while (!distanciasAlObjetivo.isEmpty()) {
 			int distanciaMinima = Collections.min(distanciasAlObjetivo.keySet());
-			
-			Point posicionSiguiente = distanciasAlObjetivo.get(distanciaMinima);
-			if (isPosicionSiguienteValida(posicionSiguiente))
-				posicionesSiguientes.add(posicionSiguiente);
-
+			posicionesSiguientes.add(distanciasAlObjetivo.get(distanciaMinima));
 			distanciasAlObjetivo.remove(distanciaMinima);
 		}
 		
+		// añadir al final de la lista el resto de posiciones válidas
+		if (isPosicionSiguienteValida(getPosicionEste()) 
+				&& !posicionesSiguientes.contains(getPosicionEste()))
+			posicionesSiguientes.add(getPosicionEste());
+		
+		if (isPosicionSiguienteValida(getPosicionSur())
+				&& !posicionesSiguientes.contains(getPosicionSur()))
+			posicionesSiguientes.add(getPosicionSur());
+		
+		if (isPosicionSiguienteValida(getPosicionOeste())
+				&& !posicionesSiguientes.contains(getPosicionOeste()))
+			posicionesSiguientes.add(getPosicionOeste());
+		
+		if (isPosicionSiguienteValida(getPosicionNorte())
+				&& !posicionesSiguientes.contains(getPosicionNorte()))
+			posicionesSiguientes.add(getPosicionNorte());
+			
 		return posicionesSiguientes;
 	}
 	
