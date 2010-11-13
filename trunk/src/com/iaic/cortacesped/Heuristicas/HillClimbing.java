@@ -117,43 +117,42 @@ public class HillClimbing {
 	 * 
 	 */
 	private List<Point> getPosicionesSiguientes() {
-		Map<Integer, Point> distanciasAlObjetivo = new HashMap<Integer, Point>();
-		if (isPosicionSiguienteValidaAndDesconocida(getPosicionEste()))
-			distanciasAlObjetivo.put(getDistanciaObjetivo(getPosicionEste()), getPosicionEste());
-		
-		if (isPosicionSiguienteValidaAndDesconocida(getPosicionSur()))
-			distanciasAlObjetivo.put(getDistanciaObjetivo(getPosicionSur()), getPosicionSur());
-		
-		if (isPosicionSiguienteValidaAndDesconocida(getPosicionOeste()))
-			distanciasAlObjetivo.put(getDistanciaObjetivo(getPosicionOeste()), getPosicionOeste());
-		
-		if (isPosicionSiguienteValidaAndDesconocida(getPosicionNorte()))
-			distanciasAlObjetivo.put(getDistanciaObjetivo(getPosicionNorte()), getPosicionNorte());
+		List<Integer> distanciasAlObjetivo = new ArrayList<Integer>();
+		List<Point> movimientos = new ArrayList<Point>();
+
+		distanciasAlObjetivo.add(getDistanciaObjetivo(getPosicionEste()));
+		movimientos.add(getPosicionEste());
+
+		distanciasAlObjetivo.add(getDistanciaObjetivo(getPosicionSur()));
+		movimientos.add(getPosicionSur());
+
+		distanciasAlObjetivo.add(getDistanciaObjetivo(getPosicionOeste()));
+		movimientos.add(getPosicionOeste());
+
+		distanciasAlObjetivo.add(getDistanciaObjetivo(getPosicionNorte()));
+		movimientos.add(getPosicionNorte());
 		
 		List<Point> posicionesSiguientes = new ArrayList<Point>();
+		List<Point> movimientosRestantes = new ArrayList<Point>();
 		while (!distanciasAlObjetivo.isEmpty()) {
-			int distanciaMinima = Collections.min(distanciasAlObjetivo.keySet());
-			posicionesSiguientes.add(distanciasAlObjetivo.get(distanciaMinima));
-			distanciasAlObjetivo.remove(distanciaMinima);
+			int distanciaMinima = Collections.min(distanciasAlObjetivo);;
+			for (int i = 0; i < distanciasAlObjetivo.size(); i++) {
+				if (distanciaMinima == distanciasAlObjetivo.get(i)) {
+					if (isPosicionSiguienteValidaAndDesconocida(movimientos.get(i)))
+						posicionesSiguientes.add(movimientos.remove(i));
+					else
+						movimientosRestantes.add(movimientos.remove(i));
+					distanciasAlObjetivo.remove(i);
+					break;
+				}
+			}
 		}
-		
-		// añadir al final de la lista el resto de posiciones válidas
-		if (isPosicionSiguienteValida(getPosicionEste()) 
-				&& !posicionesSiguientes.contains(getPosicionEste()))
-			posicionesSiguientes.add(getPosicionEste());
-		
-		if (isPosicionSiguienteValida(getPosicionSur())
-				&& !posicionesSiguientes.contains(getPosicionSur()))
-			posicionesSiguientes.add(getPosicionSur());
-		
-		if (isPosicionSiguienteValida(getPosicionOeste())
-				&& !posicionesSiguientes.contains(getPosicionOeste()))
-			posicionesSiguientes.add(getPosicionOeste());
-		
-		if (isPosicionSiguienteValida(getPosicionNorte())
-				&& !posicionesSiguientes.contains(getPosicionNorte()))
-			posicionesSiguientes.add(getPosicionNorte());
-			
+
+		for (int i = 0; i < movimientosRestantes.size(); i++) {
+			if (isPosicionSiguienteValida(movimientosRestantes.get(i)))
+				posicionesSiguientes.add(movimientosRestantes.get(i));
+		}
+
 		return posicionesSiguientes;
 	}
 	
