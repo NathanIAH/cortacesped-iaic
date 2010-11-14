@@ -25,14 +25,14 @@ import com.iaic.cortacesped.CortaCespedUtils;
  *
  */
 
-public class HillClimbing extends CortaCespedUtils {
+public class Haces extends CortaCespedUtils {
 	
 	private Point nObjetivo = new Point();
 
 	
 	// no se permite utilizar el constructor por defecto
 	@SuppressWarnings("unused")
-	private HillClimbing() {};
+	private Haces() {};
 
 	/**
 	 * Constructor con las dimensiones del jardin y el cortacesped.
@@ -42,7 +42,7 @@ public class HillClimbing extends CortaCespedUtils {
 	 * @param cortaCesped
 	 * @param nObjetivo
 	 */
-	public HillClimbing(int anchoJardin, int largoJardin, Point nObjetivo, CortaCesped cortaCesped) {
+	public Haces(int anchoJardin, int largoJardin, Point nObjetivo, CortaCesped cortaCesped) {
 		super(anchoJardin, largoJardin, cortaCesped);
 		this.nObjetivo = nObjetivo;
 	}
@@ -82,7 +82,7 @@ public class HillClimbing extends CortaCespedUtils {
 				nodoObjetivo = true;
 			} else {
 				if (!movimientosNodos.containsKey(posicionActual))
-					movimientosNodos.put(posicionActual, getPosicionesSiguientes());
+					movimientosNodos.put(posicionActual, getPosicionesSiguientes(getDistanciaObjetivo(posicionActual)));
 				
 				if (movimientosNodos.get(posicionActual).isEmpty())
 					nodos.remove(0);
@@ -97,29 +97,39 @@ public class HillClimbing extends CortaCespedUtils {
 	/**
 	 * Calcula las posiciones siguientes o hijos del nodo actual. Introduce en el mapa dichos nodos con las distancias
 	 * hasta el punto objetivo.
-	 * @return lista de puntos (hijos) por los cuales continuar la búsqueda
+	 * @return mapa con las distancias de cada nodo estudiado hasta el punto objetivo.
 	 */
-	private List<Point> getPosicionesSiguientes() {
+	private List<Point> getPosicionesSiguientes(int umbral) {
 		List<Integer> distanciasAlObjetivo = new ArrayList<Integer>();
 		List<Point> movimientos = new ArrayList<Point>();
         // Introduce los puntos con su distancia hasta el objetivo en 'distanciasAlObjetivo'
-		distanciasAlObjetivo.add(getDistanciaObjetivo(getPosicionEste()));
-		movimientos.add(getPosicionEste());
+		
+		if (getDistanciaObjetivo(getPosicionEste()) <= umbral){
+			distanciasAlObjetivo.add(getDistanciaObjetivo(getPosicionEste()));
+			movimientos.add(getPosicionEste());
+		}
 
-		distanciasAlObjetivo.add(getDistanciaObjetivo(getPosicionSur()));
-		movimientos.add(getPosicionSur());
-
-		distanciasAlObjetivo.add(getDistanciaObjetivo(getPosicionOeste()));
-		movimientos.add(getPosicionOeste());
-
-		distanciasAlObjetivo.add(getDistanciaObjetivo(getPosicionNorte()));
-		movimientos.add(getPosicionNorte());
+		if (getDistanciaObjetivo(getPosicionSur()) <= umbral){
+ 		   distanciasAlObjetivo.add(getDistanciaObjetivo(getPosicionSur()));
+		   movimientos.add(getPosicionSur());
+		}
+	
+		if (getDistanciaObjetivo(getPosicionOeste()) <= umbral){
+		   distanciasAlObjetivo.add(getDistanciaObjetivo(getPosicionOeste()));
+		   movimientos.add(getPosicionOeste());
+		}
+		
+		if (getDistanciaObjetivo(getPosicionNorte()) <= umbral){
+		   distanciasAlObjetivo.add(getDistanciaObjetivo(getPosicionNorte()));
+		   movimientos.add(getPosicionNorte());
+		}
 		
 		List<Point> posicionesSiguientes = new ArrayList<Point>();
 		List<Point> movimientosRestantes = new ArrayList<Point>();
 		
-		while (!distanciasAlObjetivo.isEmpty()) {  // Si la lista no está vacía
-			int distanciaMinima = Collections.min(distanciasAlObjetivo);;   //Se escogen los hijos con menor distancia hasta el objetivo y que aún no hayan sido explorados
+	
+		while (!distanciasAlObjetivo.isEmpty()) {                                           //Mientras haya
+			int distanciaMinima = Collections.min(distanciasAlObjetivo);;
 			for (int i = 0; i < distanciasAlObjetivo.size(); i++) {
 				if (distanciaMinima == distanciasAlObjetivo.get(i)) {
 					if (isPosicionSiguienteValidaAndDesconocida(movimientos.get(i)))
@@ -142,12 +152,13 @@ public class HillClimbing extends CortaCespedUtils {
 	
 	
 	/**
-	 * Calcula la distancia Manhatan desde el punto dado hasta el destino
+	 * Calcula la distancia Euclídea desde el punto dado hasta el destino
 	 * @param nHijo punto dado
-	 * @return distancia Manhattan
+	 * @return distancia Euclídea
 	 */
 	private int getDistanciaObjetivo(Point  nHijo) {
-		return ( Math.abs(nHijo.x - nObjetivo.x) + Math.abs(nHijo.y-nObjetivo.y));
+			return  (int) Math.sqrt(Math.pow((nHijo.x - nObjetivo.x),2) + Math.pow((nHijo.y-nObjetivo.y),2));
+
 	}
 	
 	/**
