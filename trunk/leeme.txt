@@ -1,0 +1,51 @@
+=======================================================================
+= 								LÉEME						   	      =
+=======================================================================
+
+---------------------------- MENÚ ARCHIVO -----------------------------
+Cargar: Carga los datos de un escenario desde un archivo de datos
+Guardar: Guarda los datos del escenario actual en un archivo de datos
+
+---------------------------- MENÚ CARGAR ------------------------------
+Dimensiones: Carga el número de filas y columnas del escenario a través
+			 de un formulario de entrada
+Obstáculos
+	Manual: Carga  la  situación  de obstáculos  y césped  bajo  en  el 
+	        escenario a través de un formulario de entrada
+	Automático: Carga  la situación  de obstáculos y  césped bajo en el 
+	            escenario  de forma  aleatoria a  partir de la cantidad, 
+	            seleccionada a través de un formulario de entrada 
+           
+-------------------------- MENÚ INSTANCIA -----------------------------
+Generar: Genera un escenario a partir de los datos con las dimensiones y
+		 obstáculos cargados anteriormente para ejecutar un algoritmo
+Restaurar: Regenera el último escenario cargado para proceder a una nueva
+           ejecución de un algoritmo
+           
+--------------------------- MENÚ EJECUTAR -----------------------------
+Alg. Ciego: Ejecuta la búsqueda en profundida,  que es denominado  como
+            algoritmo ciego, sobre el escenario cargado anteriormente          
+Heurística
+	Heu Cortar Todo: Ejecuta una heurística propia en el escenario dado
+	Heu Cortar Zona: Ejecuta la heurística HillClimbing entre el  punto 
+	                 inicial y final, solicitado mediante formulario de
+	                 entrada, en el escenario dado
+	                 
+=======================================================================
+= 						ESQUEMA DE EJECUCIÓN		   	              =
+=======================================================================
+
+Paso 1 - Cargar los datos del escenario
+	a) Archivo -> Cargar
+    b) Cargar -> Dimensiones ; Cargar -> Obstáculos -> Manual  
+    c) Cargar -> Dimensiones ; Cargar -> Obstáculos -> Automático
+Paso 2 - Generar instancia del escenario
+	a) Instancia -> Generar
+Paso 3 - Ejecutar el algoritmo ciego o heurística
+	a) Ejecutar -> Alg. Ciego
+	b) Ejecutar -> Heurística - > Heu. Cortar Todo
+	c) Ejecutar -> Heurística - > Heu. Cortar Zona
+Paso 4 (opcional) - Restaurar escenario
+	a) Instancia -> Restaurar ; Ir a Paso 3
+Paso 5 (opcional) - Crear un nuevo escenario
+	a) Ir a Paso 1	 

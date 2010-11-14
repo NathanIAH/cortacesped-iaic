@@ -6,28 +6,18 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.iaic.cortacesped.CortaCesped;
-import com.iaic.cortacesped.CortaCesped.Sensor;
+import com.iaic.cortacesped.CortaCespedUtils;
 
-public class BusquedaPrimeroProfundidadMejorada {
+public class BusquedaPrimeroProfundidadMejorada extends CortaCespedUtils {
 
-	private enum Estado {OCUPADO, 
-			 			 CORTADO,
-						 DESCONOCIDO};
-	
-	private final Point POSICION_INICIAL = new Point(1,1); 
-	private Point posicionActual = POSICION_INICIAL;
 	private Point posicionAnterior = POSICION_INICIAL;
-	private int anchoJardin, largoJardin;
-	private CortaCesped cortaCesped;
-	private Map<Point, Estado> jardinRecorrido;	
 
 	
 	// no se permite utilizar el constructor por defecto
 	@SuppressWarnings("unused")
-	private BusquedaPrimeroProfundidadMejorada() {};
+	private BusquedaPrimeroProfundidadMejorada() { };
 
 	/**
 	 * Constructor con las dimensiones del jardín como parámetros, para inicializar la memoria 
@@ -39,17 +29,7 @@ public class BusquedaPrimeroProfundidadMejorada {
 	 * @param cortaCesped
 	 */
 	public BusquedaPrimeroProfundidadMejorada(int anchoJardin, int largoJardin, CortaCesped cortaCesped) {
-		this.anchoJardin = anchoJardin;
-		this.largoJardin = largoJardin;
-		this.cortaCesped = cortaCesped;
-		this.jardinRecorrido = new HashMap<Point, Estado>();
-		
-		// a priori el cortacésped no conoce el estado de ningún punto del jardín
-		for (int i = 1; i <= anchoJardin; i++) {
-			for (int j = 1; j <= largoJardin; j++) {
-				jardinRecorrido.put(new Point(i, j), Estado.DESCONOCIDO);
-			}
-		}
+		super(anchoJardin, largoJardin, cortaCesped);
 	}
 	
 	
@@ -307,89 +287,19 @@ public class BusquedaPrimeroProfundidadMejorada {
 		return numeroPosicionesDesconocidasEste;
 	}	
 	
-	private boolean isPosicionSiguienteValidaAndDesconocida(Point posicion) {
-		return isPosicionSiguienteValida(posicion) &&
-			   isPosicionDesconocida(posicion);
-	}
-	
 	private boolean isPosicionSiguienteValidaAndDistintaPosicionAnterior(Point posicion) {
 		return isPosicionSiguienteValida(posicion) &&
 		   	   !isPosicionAnterior(posicion);
-	}
-	
-	private boolean isPosicionSiguienteValida(Point posicion) {
-		return isPosicionDentroJardin(posicion) &&
-	   	   	   !isPosicionOcupada(posicion);
-	}
-	
-	private boolean isPosicionDentroJardin(Point posicion) {
-		return posicion.x <= anchoJardin &&
-			   posicion.x >= 1 			 &&
-			   posicion.y <= largoJardin &&
-			   posicion.y >= 1;
 	}
 
 	private boolean isPosicionAnterior(Point posicion) {
 		return posicionAnterior.equals(posicion);
 	}
 
-	private boolean isPosicionOcupada(Point posicion) {
-		return Estado.OCUPADO.equals(jardinRecorrido.get(posicion));
-	}
-	
-	private boolean isPosicionDesconocida(Point posicion) {
-		return Estado.DESCONOCIDO.equals(jardinRecorrido.get(posicion));
-	}
-	
-	private void memorizarPosicionesOcupadas(Map<Sensor, Boolean> estadoSensores) {
-		if (estadoSensores.get(Sensor.NORTE))
-			jardinRecorrido.put(getPosicionNorte(), Estado.OCUPADO);
-		if (estadoSensores.get(Sensor.OESTE))
-			jardinRecorrido.put(getPosicionOeste(), Estado.OCUPADO);
-		if (estadoSensores.get(Sensor.SUR))
-			jardinRecorrido.put(getPosicionSur(), Estado.OCUPADO);
-		if (estadoSensores.get(Sensor.ESTE))
-			jardinRecorrido.put(getPosicionEste(), Estado.OCUPADO);
-	}
 	
 	private boolean isNodoObjetivo() {
 		return isPosicionInicial() &&
 			   isJardinRecorridoCompletamente();
 	}
-	
-	private boolean isPosicionInicial() {
-		return posicionActual.equals(POSICION_INICIAL);
-	}	
-
-	private boolean isJardinRecorridoCompletamente() {
-		for (Entry<Point, Estado> puntoJardin : jardinRecorrido.entrySet()) {
-			if (!isPuntoJardinHecho(puntoJardin)) {
-				return false;
-			}
-		}
-		
-		return true;
-	}
-
-	private boolean isPuntoJardinHecho(Entry<Point, Estado> puntoJardin) {
-		return Estado.OCUPADO.equals(puntoJardin.getValue()) ||
-			   Estado.CORTADO.equals(puntoJardin.getValue());
-	}
-	
-	private Point getPosicionNorte() {
-		return new Point(posicionActual.x, posicionActual.y - 1);
-	}
-	
-	private Point getPosicionOeste() {
-		return new Point(posicionActual.x - 1, posicionActual.y);
-	}
-	
-	private Point getPosicionSur() {
-		return new Point(posicionActual.x, posicionActual.y + 1);
-	}		
-
-	private Point getPosicionEste() {
-		return new Point(posicionActual.x + 1, posicionActual.y);
-	}	
 
 }
