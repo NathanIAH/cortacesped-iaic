@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.iaic.cortacesped.CortaCesped;
-import com.iaic.cortacesped.CortaCesped.Sensor;
+import com.iaic.cortacesped.CortaCespedUtils;
 
 
 
@@ -25,20 +25,12 @@ import com.iaic.cortacesped.CortaCesped.Sensor;
  *
  */
 
-public class HillClimbing {
-	
-	private enum Estado	{OCUPADO, 
-											 CORTADO,
-											 DESCONOCIDO};
-	
-	private final Point POSICION_INICIAL = new Point(1,1); 
+public class HillClimbing extends CortaCespedUtils {
 	
 	private Point nObjetivo = new Point();
-	private Point posicionActual = POSICION_INICIAL;
-	private int anchoJardin, largoJardin;
-	private CortaCesped cortaCesped;
-	private Map<Point, Estado> jardinRecorrido;	
 
+	
+	// no se permite utilizar el constructor por defecto
 	@SuppressWarnings("unused")
 	private HillClimbing() {};
 
@@ -51,17 +43,8 @@ public class HillClimbing {
 	 * @param nObjetivo
 	 */
 	public HillClimbing(int anchoJardin, int largoJardin, Point nObjetivo, CortaCesped cortaCesped) {
-		this.anchoJardin = anchoJardin;
-		this.largoJardin = largoJardin;
-		this.cortaCesped = cortaCesped;
+		super(anchoJardin, largoJardin, cortaCesped);
 		this.nObjetivo = nObjetivo;
-		this.jardinRecorrido = new HashMap<Point, Estado>();
-		
-		for (int i = 1; i <= anchoJardin; i++) {
-			for (int j = 1; j <= largoJardin; j++) {
-				jardinRecorrido.put(new Point(i, j), Estado.DESCONOCIDO);
-			}
-		}
 	}
 	
 	
@@ -171,64 +154,12 @@ public class HillClimbing {
 		return distancia;
 	}
 	
-	private boolean isPosicionSiguienteValidaAndDesconocida(Point posicion) {
-		return isPosicionSiguienteValida(posicion) &&
-			   isPosicionDesconocida(posicion);
-	}
-	
-	private boolean isPosicionSiguienteValida(Point posicion) {
-		return isPosicionDentroJardin(posicion) &&
-	   	   	   !isPosicionOcupada(posicion);
-	}
-	
-	private boolean isPosicionDentroJardin(Point posicion) {
-		return posicion.x <= anchoJardin &&
-			   posicion.x >= 1 			 &&
-			   posicion.y <= largoJardin &&
-			   posicion.y >= 1;
-	}
-
-	private boolean isPosicionOcupada(Point posicion) {
-		return Estado.OCUPADO.equals(jardinRecorrido.get(posicion));
-	}
-	
-	private boolean isPosicionDesconocida(Point posicion) {
-		return Estado.DESCONOCIDO.equals(jardinRecorrido.get(posicion));
-	}
-
-	private void memorizarPosicionesOcupadas(Map<Sensor, Boolean> estadoSensores) {
-		if (estadoSensores.get(Sensor.NORTE))
-			jardinRecorrido.put(getPosicionNorte(), Estado.OCUPADO);
-		if (estadoSensores.get(Sensor.OESTE))
-			jardinRecorrido.put(getPosicionOeste(), Estado.OCUPADO);
-		if (estadoSensores.get(Sensor.SUR))
-			jardinRecorrido.put(getPosicionSur(), Estado.OCUPADO);
-		if (estadoSensores.get(Sensor.ESTE))
-			jardinRecorrido.put(getPosicionEste(), Estado.OCUPADO);
-	}
-	
 	private boolean isNodoObjetivo() {
 		return isPosicionFinal();
 	}
 	
 	private boolean isPosicionFinal() {
 		return posicionActual.equals(nObjetivo);
-	}	
-	
-	private Point getPosicionNorte() {
-		return new Point(posicionActual.x, posicionActual.y - 1);
-	}
-	
-	private Point getPosicionOeste() {
-		return new Point(posicionActual.x - 1, posicionActual.y);
-	}
-	
-	private Point getPosicionSur() {
-		return new Point(posicionActual.x, posicionActual.y + 1);
-	}		
-
-	private Point getPosicionEste() {
-		return new Point(posicionActual.x + 1, posicionActual.y);
 	}	
 
 }

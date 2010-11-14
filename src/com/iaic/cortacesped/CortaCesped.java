@@ -34,10 +34,6 @@ import com.iaic.cortacesped.Heuristicas.HillClimbing;
 import com.iaic.cortacesped.busquedasCiegas.BusquedaPrimeroProfundidad;
 
 public class CortaCesped implements ActionListener {
-	
-	public static enum Sensor {NORTE, SUR, ESTE, OESTE};
-	
-	
 	@SuppressWarnings("serial")
 	private class Lienzo extends Canvas {
 		public Lienzo() {
@@ -69,15 +65,15 @@ public class CortaCesped implements ActionListener {
 			for (int i = 1; i <= filas; i++) {
 				for (int j = 1; j <= columnas; j++) {
 					if (matriz[i][j].equals("Obstáculo")) {
-//						System.out.println("Obstáculo en " + i +"," + j);
+						//System.out.println("Obstáculo en " + i +"," + j);
 						g.drawImage(iobstaculo, MARGENFILA+((j-1)*CELDAFILA), MARGENCOL+((i-1)*CELDACOL), this);
 					}
 					else if (matriz[i][j].equals("Césped bajo")) {
-//						System.out.println("Césped bajo en " + i + "," + j);
+						//System.out.println("Césped bajo en " + i + "," + j);
 						g.drawImage(icespedbajo, MARGENFILA+((j-1)*CELDAFILA), MARGENCOL+((i-1)*CELDACOL), this);
 					}
 					else if (matriz[i][j].equals("Césped alto")) {
-//						System.out.println("Césped alto en " + i + "," + j);
+						//System.out.println("Césped alto en " + i + "," + j);
 						g.drawImage(icespedalto, MARGENFILA+((j-1)*CELDAFILA), MARGENCOL+((i-1)*CELDACOL), this);
 					}
 				}
@@ -89,7 +85,6 @@ public class CortaCesped implements ActionListener {
 				g.drawImage(icortacespedalto, MARGENFILA+((cortacespedColumna-1)*CELDAFILA), MARGENCOL+((cortacespedFila-1)*CELDACOL), this);
 			else if (matriz[cortacespedFila][cortacespedColumna].equals("Césped bajo"))
 				g.drawImage(icortacespedbajo, MARGENFILA+((cortacespedColumna-1)*CELDAFILA), MARGENCOL+((cortacespedFila-1)*CELDACOL), this);
-			// Aquí habrá que contemplar que si se ha dispuesto un obstáculo en la posición (1,1) no se mostrará el cortacesped
 		}
 	}
 	private class VentanaDimensiones implements ActionListener {
@@ -130,78 +125,30 @@ public class CortaCesped implements ActionListener {
 		
 		public void actionPerformed(ActionEvent e) {
 			String texto = ((Button)e.getSource()).getLabel();
-			System.out.println("Boton presionado: " + texto);
-			if (texto.equals("Guardar")) {
-				TextField tf_filas = (TextField)ventana_dimensiones.getComponent(1);
-				filas = Integer.parseInt(tf_filas.getText());
-				TextField tf_columnas = (TextField)ventana_dimensiones.getComponent(3);
-				columnas = Integer.parseInt(tf_columnas.getText());
-				System.out.println("Filas = " + filas);
-				System.out.println("Columnas = " + columnas);
-				
+			//System.out.println("Boton presionado: " + texto);
+			if (texto.equals("Guardar")) { 
 				ventana_dimensiones.setVisible(false);
 				ventana_dimensiones.dispose();
+				
+				TextField tf_filas = (TextField)ventana_dimensiones.getComponent(1);
+				TextField tf_columnas = (TextField)ventana_dimensiones.getComponent(3);
+				if ((!tf_filas.getText().equals("")) && (!tf_columnas.getText().equals(""))) {
+					filas = Integer.parseInt(tf_filas.getText());
+					columnas = Integer.parseInt(tf_columnas.getText());
+					//System.out.println("Filas = " + filas);
+					//System.out.println("Columnas = " + columnas);
+				}
+				else {
+					VentanaMensaje vm = new VentanaMensaje("No se ha especificado alguna dimensi—n");
+				}
 			}
 		}
 	}
-	private class VentanaFinal implements ActionListener {
-		private Frame ventana_final;
-		public VentanaFinal() {
-			ventana_final = new Frame("Punto final");
-			ventana_final.setSize(300, 100);
-			ventana_final.setResizable(false);
-			ventana_final.setLayout(new GridLayout(3,2));
-			ventana_final.addWindowListener(new WindowListener() {
-				public void windowOpened(WindowEvent e) {}
-				public void windowActivated(WindowEvent e) {}
-				public void windowDeactivated(WindowEvent e) {}
-				public void windowIconified(WindowEvent e) {}
-				public void windowDeiconified(WindowEvent e) {}
-				public void windowClosed(WindowEvent e) {}
-				public void windowClosing(WindowEvent e) {
-					e.getWindow().setVisible(false);
-					e.getWindow().dispose();
-				}
-			});
-			// Añadir los elementos de la ventana Dimensiones
-			Label l1 = new Label("Punto final (x): ");
-			TextField tf1 = new TextField();
-			Label l2 = new Label("Punto final (y): ");
-			TextField tf2 = new TextField();			
-			Button boton = new Button("Guardar");
-			boton.addActionListener(this);
-    
-			ventana_final.add(l1);
-			ventana_final.add(tf1);
-			ventana_final.add(l2);
-			ventana_final.add(tf2);			
-			ventana_final.add(boton);
-        
-			ventana_final.setVisible(true);
-		}
-		
-		public void actionPerformed(ActionEvent e) {
-			String texto = ((Button)e.getSource()).getLabel();
-			System.out.println("Boton presionado: " + texto);
-			if (texto.equals("Guardar")) {
-				TextField tf_filas = (TextField)ventana_final.getComponent(1);
-				int x = Integer.parseInt(tf_filas.getText());
-				TextField tf_columnas = (TextField)ventana_final.getComponent(3);
-				int y = Integer.parseInt(tf_columnas.getText());
-				puntoFinal = new Point(x,y);
-				
-				ventana_final.setVisible(false);
-				ventana_final.dispose();
-				
-	        	ejecutarHillClimbing();				
-			}
-		}
-	}	
 	private class VentanaObstaculos implements ActionListener {
 		private Frame ventana_obstaculos;
 		public VentanaObstaculos() {
 			ventana_obstaculos = new Frame("Obstáculos");
-			ventana_obstaculos.setSize(300, 100);
+			ventana_obstaculos.setSize(550, 100);
 			ventana_obstaculos.setResizable(false);
 			ventana_obstaculos.setLayout(new GridLayout(3,2));
 			ventana_obstaculos.addWindowListener(new WindowListener() {
@@ -234,35 +181,165 @@ public class CortaCesped implements ActionListener {
 		}
 		public void actionPerformed(ActionEvent e) {
 			String texto = ((Button)e.getSource()).getLabel();
-			System.out.println("Boton presionado: " + texto);
+			//System.out.println("Boton presionado: " + texto);
 			if (texto.equals("Guardar")) {
 				TextField tf_obstaculos = (TextField)ventana_obstaculos.getComponent(1);
 				obstaculos = tf_obstaculos.getText();
-				System.out.println("Obstaculos: " + obstaculos);
-				String vobstaculos[] = obstaculos.split(";");
-				for (int i = 0; i < vobstaculos.length; i++) {
-					String vcoordenadas[] = vobstaculos[i].split(",");
-					matriz[Integer.parseInt(vcoordenadas[0])][Integer.parseInt(vcoordenadas[1])] = "Obstáculo";
+				//System.out.println("Obstaculos: " + obstaculos);
+				if (!obstaculos.equals("")) {
+					String vobstaculos[] = obstaculos.split(";");
+					for (int i = 0; i < vobstaculos.length; i++) {
+						String vcoordenadas[] = vobstaculos[i].split(",");
+						matriz[Integer.parseInt(vcoordenadas[0])][Integer.parseInt(vcoordenadas[1])] = "Obstáculo";
+					}
 				}
-				TextField tf_cespedbajo = (TextField)ventana_obstaculos.getComponent(3);				
+				TextField tf_cespedbajo = (TextField)ventana_obstaculos.getComponent(3);
 				cespedbajo = tf_cespedbajo.getText();
-				System.out.println("Cesped bajo: " + cespedbajo);
-				String vcespedbajo[] = cespedbajo.split(";");
-				for (int i = 0; i < vcespedbajo.length; i++) {
-					String vcoordenadas[] = vcespedbajo[i].split(",");
-					matriz[Integer.parseInt(vcoordenadas[0])][Integer.parseInt(vcoordenadas[1])] = "Césped bajo";
+				//System.out.println("Cesped bajo: " + cespedbajo);
+				if (!cespedbajo.equals("")) {
+					String vcespedbajo[] = cespedbajo.split(";");
+					for (int i = 0; i < vcespedbajo.length; i++) {
+						String vcoordenadas[] = vcespedbajo[i].split(",");
+						matriz[Integer.parseInt(vcoordenadas[0])][Integer.parseInt(vcoordenadas[1])] = "Césped bajo";
+					}
 				}
+				guardarMatriz();
 				
 				ventana_obstaculos.setVisible(false);
 				ventana_obstaculos.dispose();
 			}
 		}
 	}
+	private class VentanaObstaculos2 implements ActionListener {
+		private Frame ventana_obstaculos;
+		public VentanaObstaculos2() {
+			ventana_obstaculos = new Frame("Obstáculos");
+			ventana_obstaculos.setSize(400, 100);
+			ventana_obstaculos.setResizable(false);
+			ventana_obstaculos.setLayout(new GridLayout(3,2));
+			ventana_obstaculos.addWindowListener(new WindowListener() {
+				public void windowOpened(WindowEvent e) {}
+				public void windowActivated(WindowEvent e) {}
+				public void windowDeactivated(WindowEvent e) {}
+				public void windowIconified(WindowEvent e) {}
+				public void windowDeiconified(WindowEvent e) {}
+				public void windowClosed(WindowEvent e) {}
+				public void windowClosing(WindowEvent e) {
+					e.getWindow().setVisible(false);
+					e.getWindow().dispose();
+				}
+			});
+			// Añadir los elementos de la ventana Dimensiones
+			Label l1 = new Label("Número de Obstáculos");
+			TextField tf1 = new TextField();
+			Label l2 = new Label("Número de Césped bajo");
+			TextField tf2 = new TextField();
+			Button boton = new Button("Guardar");
+			boton.addActionListener(this);
+    
+			ventana_obstaculos.add(l1);
+			ventana_obstaculos.add(tf1);
+			ventana_obstaculos.add(l2);
+			ventana_obstaculos.add(tf2);
+			ventana_obstaculos.add(boton);
+        
+			ventana_obstaculos.setVisible(true);
+		}
+		
+		public int generarAleatorio(int min, int max) {
+			return (int)(Math.random()*(max-min))+min;
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			String texto = ((Button)e.getSource()).getLabel();
+			//System.out.println("Boton presionado: " + texto);
+			if (texto.equals("Guardar")) {
+				TextField tf_obstaculos = (TextField)ventana_obstaculos.getComponent(1);
+				int nobstaculos = Integer.parseInt(tf_obstaculos.getText());
+				for (int i = 0; i < nobstaculos; i++) {
+					int fila, columna;
+					do {
+						fila = generarAleatorio(1, filas);
+						columna = generarAleatorio(1, columnas);
+					} while (((fila == 1) && (columna == 1)) || (matriz[fila][columna].equals("Obstáculo")));
+					matriz[fila][columna] = "Obstáculo";
+					obstaculos += fila + "," + columna + ";";
+				}
+				
+				TextField tf_cespedbajo = (TextField)ventana_obstaculos.getComponent(3);				
+				int ncespedbajo = Integer.parseInt(tf_cespedbajo.getText());
+				for (int i = 0; i < ncespedbajo; i++) {
+					int fila, columna;
+					do {
+						fila = generarAleatorio(1, filas);
+						columna = generarAleatorio(1, columnas);
+					} while ((matriz[fila][columna].equals("Obstáculo")) || 
+							(matriz[fila][columna].equals("Césped bajo")));
+					matriz[fila][columna] = "Césped bajo";
+					cespedbajo += fila + "," + columna + ";";
+				}
+				guardarMatriz();
+				
+				ventana_obstaculos.setVisible(false);
+				ventana_obstaculos.dispose();
+			}
+		}
+	}
+	private class VentanaFinal implements ActionListener {
+		private Frame ventana_final;
+		public VentanaFinal() {
+			ventana_final = new Frame("Punto final");
+			ventana_final.setSize(350, 75);
+			ventana_final.setResizable(false);
+			ventana_final.setLayout(new GridLayout(2,1));
+			ventana_final.addWindowListener(new WindowListener() {
+				public void windowOpened(WindowEvent e) {}
+				public void windowActivated(WindowEvent e) {}
+				public void windowDeactivated(WindowEvent e) {}
+				public void windowIconified(WindowEvent e) {}
+				public void windowDeiconified(WindowEvent e) {}
+				public void windowClosed(WindowEvent e) {}
+				public void windowClosing(WindowEvent e) {
+					e.getWindow().setVisible(false);
+					e.getWindow().dispose();
+				}
+			});
+			// Añadir los elementos de la ventana Dimensiones
+			Label l1 = new Label("Punto final (fila, columna): ");
+			TextField tf1 = new TextField();			
+			Button boton = new Button("Guardar");
+			boton.addActionListener(this);
+    
+			ventana_final.add(l1);
+			ventana_final.add(tf1);		
+			ventana_final.add(boton);
+        
+			ventana_final.setVisible(true);
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			String texto = ((Button)e.getSource()).getLabel();
+			//System.out.println("Boton presionado: " + texto);
+			if (texto.equals("Guardar")) {
+				TextField tf_puntofinal = (TextField)ventana_final.getComponent(1);
+				String puntofinal = tf_puntofinal.getText();
+				String vpuntofinal[] = puntofinal.split(",");
+				int x = Integer.parseInt(vpuntofinal[0]);
+				int y = Integer.parseInt(vpuntofinal[1]);
+				
+				ventana_final.setVisible(false);
+				ventana_final.dispose();
+				
+				puntoFinal = new Point(x,y);
+	        	ejecutarHillClimbing();				
+			}
+		}
+	}	
 	private class VentanaMensaje implements ActionListener  {
 		private Frame ventana_mensaje;
 		public VentanaMensaje(final String mensaje) {
 			ventana_mensaje = new Frame("Cortacésped v1.0 - Mensaje");
-			ventana_mensaje.setSize(300, 75);
+			ventana_mensaje.setSize(400, 75);
 			ventana_mensaje.setResizable(false);
 			ventana_mensaje.setLayout(new BorderLayout());
 			ventana_mensaje.addWindowListener(new WindowListener() {
@@ -288,7 +365,7 @@ public class CortaCesped implements ActionListener {
 		}
 		public void actionPerformed(ActionEvent e) {
 			String texto = ((Button)e.getSource()).getLabel();
-			System.out.println("Boton presionado: " + texto);
+			//System.out.println("Boton presionado: " + texto);
 			if (texto.equals("Aceptar")) {
 				ventana_mensaje.setVisible(false);
 				ventana_mensaje.dispose();
@@ -298,23 +375,30 @@ public class CortaCesped implements ActionListener {
 	private String obstaculos;
 	private String cespedbajo;	
 	// Tamaño de la Ventana: 800x600
-	// Máximo Nº Filas: 20
-	// Máximo Nº Columnas: 20
+	// Máximo Nº Filas visualizables: 20
+	// Máximo Nº Columnas visualizables: 20
+	public static enum Sensor {NORTE, SUR, ESTE, OESTE};
 	private final int CELDAFILA = 36;
 	private final int MARGENFILA = 40;
 	private int filas;
 	private int columnas;
+	private int movimientos;
 	private Point puntoFinal = new Point();
 	private String matriz[][];
+	private String matrizRestaurar[][]; 
 	private final int CELDACOL = 26;
 	private final int MARGENCOL = 40;
     private Frame ventana;
     private int cortacespedFila;
     private int cortacespedColumna;
     private Lienzo lienzo;
+    private boolean generado;
     
     public CortaCesped() {
     	// Inicialización de algunas variables
+    	filas = columnas = 0;
+    	obstaculos = cespedbajo = "";
+    	generado = false;
     	cortacespedFila = cortacespedColumna = 1;
     	//------------------------------------
         ventana = new Frame("Cortacésped v1.0");
@@ -330,15 +414,22 @@ public class CortaCesped implements ActionListener {
         
         Menu cargar = new Menu("Cargar");
         MenuItem cargar_dimensiones = new MenuItem("Dimensiones");
-        MenuItem cargar_obstaculos = new MenuItem("Obstáculos");
- 
+        
+        Menu cargar_obstaculos = new Menu("Obstáculos");
+        MenuItem cargar_obstaculos_manual = new MenuItem("Manual");
+        MenuItem cargar_obstaculos_automatico = new MenuItem("Automático");
+        cargar_obstaculos.add(cargar_obstaculos_manual);
+        cargar_obstaculos.add(cargar_obstaculos_automatico);
+        
         cargar.add(cargar_dimensiones);
         cargar.add(cargar_obstaculos);
         
-        Menu generar = new Menu("Generar");
-        MenuItem generar_instancia = new MenuItem("Instancia");
+        Menu instancia = new Menu("Instancia");
+        MenuItem instancia_generar = new MenuItem("Generar");
+        MenuItem instancia_restaurar = new MenuItem("Restaurar");
         
-        generar.add(generar_instancia);
+        instancia.add(instancia_generar);
+        instancia.add(instancia_restaurar);
         
         Menu ejecutar = new Menu("Ejecutar");
         MenuItem ejecutar_algciego = new MenuItem("Alg. Ciego");
@@ -350,27 +441,29 @@ public class CortaCesped implements ActionListener {
         ejecutar.add(ejecutar_heutodo);
         ejecutar.add(ejecutar_heuzona);
         
-        Menu debug = new Menu("Debug");
-        MenuItem debug_debug = new MenuItem ("Debug");
+        //Menu debug = new Menu("Debug");
+        //MenuItem debug_debug = new MenuItem ("Debug");
         
-        debug.add(debug_debug);
+        //debug.add(debug_debug);
         
         // Agregar un listener para los elementos del menú
         archivo_cargar.addActionListener(this);
         archivo_guardar.addActionListener(this);
         cargar_dimensiones.addActionListener(this);
-        cargar_obstaculos.addActionListener(this);
-        generar_instancia.addActionListener(this);
+        cargar_obstaculos_manual.addActionListener(this);
+        cargar_obstaculos_automatico.addActionListener(this);
+        instancia_generar.addActionListener(this);
+        instancia_restaurar.addActionListener(this);
         ejecutar_algciego.addActionListener(this);
         ejecutar_heutodo.addActionListener(this);
         ejecutar_heuzona.addActionListener(this);
-        debug_debug.addActionListener(this);
+        //debug_debug.addActionListener(this);
 
         menu.add(archivo);
         menu.add(cargar);
-        menu.add(generar);
+        menu.add(instancia);
         menu.add(ejecutar);
-        menu.add(debug);
+        //menu.add(debug);
         
         ventana.setMenuBar(menu);
         ventana.setSize(800, 600);
@@ -392,8 +485,8 @@ public class CortaCesped implements ActionListener {
     }
  
     private void inicializarMatriz() {
-    	for (int i = 1; i < (filas + 1); i++) {
-			for (int j = 1; j < (columnas + 1); j++) {
+    	for (int i = 1; i <= filas; i++) {
+			for (int j = 1; j <= columnas; j++) {
 				matriz[i][j] = "Césped alto";
 			}
     	}
@@ -402,7 +495,7 @@ public class CortaCesped implements ActionListener {
     public void actionPerformed(ActionEvent e) {
     	MenuItem item = (MenuItem)e.getSource();
         String texto = item.getLabel();
-        System.out.println("Opcion seleccionada: " + texto);
+        //System.out.println("Opcion seleccionada: " + texto);
         if (texto.equals("Cargar")) {
         	FileDialog fd = new FileDialog(ventana, "Cargar configuración");
         	fd.show();
@@ -420,6 +513,7 @@ public class CortaCesped implements ActionListener {
         		columnas = Integer.parseInt(vdimensiones[1]);
         		
         		matriz = new String[filas + 1][columnas + 1];
+        		matrizRestaurar = new String[filas + 1][columnas + 1]; 
             	inicializarMatriz();
         		
         		String vobstaculos[] = obstaculos.split(";");
@@ -428,122 +522,210 @@ public class CortaCesped implements ActionListener {
         			matriz[Integer.parseInt(vcoordenadas[0])][Integer.parseInt(vcoordenadas[1])] = "Obstáculo";
         		}
         		
-        		String vcespedbajo[] = cespedbajo.split(";");
-        		for (int i = 0; i < vcespedbajo.length; i++) {
-        			String vcoordenadas[] = vcespedbajo[i].split(",");
-        			matriz[Integer.parseInt(vcoordenadas[0])][Integer.parseInt(vcoordenadas[1])] = "Césped bajo";
+        		if (cespedbajo != null) {
+        			String vcespedbajo[] = cespedbajo.split(";");
+        			for (int i = 0; i < vcespedbajo.length; i++) {
+        				String vcoordenadas[] = vcespedbajo[i].split(",");
+        				matriz[Integer.parseInt(vcoordenadas[0])][Integer.parseInt(vcoordenadas[1])] = "Césped bajo";
+        			}
         		}
+        		guardarMatriz();
         	} catch (IOException ioe) {
-        		// ERROR
-        		ioe.printStackTrace();
+        		// No imprimimos la traza por si el usuario cancela la carga del archivo de datos
+        		//ioe.printStackTrace();
+        		VentanaMensaje vm = new VentanaMensaje("No se han cargado los datos");
         	} 
         }
         else if (texto.equals("Guardar")) {
-        	Calendar  c = Calendar.getInstance();
-        	String dia = Integer.toString(c.get(Calendar.DATE));
-        	String mes = Integer.toString(c.get(Calendar.MONTH + 1));
-        	String anio = Integer.toString(c.get(Calendar.YEAR));
-        	String hora = Integer.toString(c.get(Calendar.HOUR));
-        	String minuto = Integer.toString(c.get(Calendar.MINUTE)); 
-        	String nombre_archivo = "datos_" + dia + mes + anio + "_" + hora + minuto + ".dat";
-        	// Prepara el fichero de salida:
-        	// La primera línea contiene las dimensiones (filas y columnas) separadas por un espacio
-        	String guardar = this.filas + " " + this.columnas + "\n";
-        	// La segunda línea contiene los obstáculos
-        	guardar += obstaculos + "\n";
-        	// La tercera línea contiene dónde está el césped bajo
-        	guardar += cespedbajo;
-			try {		
-				FileWriter fw = new FileWriter("C:\\" + nombre_archivo);
-				PrintWriter pw = new PrintWriter(fw);
-				pw.print(guardar);
-				fw.close();
-			} catch (IOException ioe) {
-				// ERROR
-				ioe.printStackTrace();
-			}
-        	
+        	if (!obstaculos.equals("")) {	
+        		Calendar  c = Calendar.getInstance();
+        		String dia = Integer.toString(c.get(Calendar.DATE));
+        		String mes = Integer.toString(c.get(Calendar.MONTH + 1));
+        		String anio = Integer.toString(c.get(Calendar.YEAR));
+        		String hora = Integer.toString(c.get(Calendar.HOUR));
+        		String minuto = Integer.toString(c.get(Calendar.MINUTE)); 
+        		String nombre_archivo = "datos_" + dia + mes + anio + "_" + hora + minuto + ".dat";
+        		// Prepara el fichero de salida:
+        		// La primera línea contiene las dimensiones (filas y columnas) separadas por un espacio
+        		String guardar = this.filas + " " + this.columnas + "\n";
+        		// La segunda línea contiene los obstáculos
+        		guardar += obstaculos + "\n";
+        		// La tercera línea contiene dónde está el césped bajo
+        		guardar += cespedbajo;
+        		try {		
+        			FileWriter fw = new FileWriter(nombre_archivo);
+        			PrintWriter pw = new PrintWriter(fw);
+					pw.print(guardar);
+					fw.close();
+        		} catch (IOException ioe) {
+        			ioe.printStackTrace();
+        		}
+        	}
+        	else { 
+        		VentanaMensaje vm = new VentanaMensaje("No existen datos para su guardado");
+        	}
         }
         else if (texto.equals("Dimensiones")) {
         	VentanaDimensiones vd = new VentanaDimensiones();
-        }
-        else if (texto.equals("Obstáculos")) {
         	matriz = new String[filas + 1][columnas + 1];
+        	matrizRestaurar = new String[filas + 1][columnas + 1];
         	inicializarMatriz();
-        	
-        	VentanaObstaculos vo = new VentanaObstaculos();
         }
-        else if (texto.equals("Instancia")) {
-        	dibujarInstancia();
+        else if (texto.equals("Manual")) {
+        	if ((filas > 0) && (columnas > 0)) {
+        		matriz = new String[filas + 1][columnas + 1];
+        		matrizRestaurar = new String[filas + 1][columnas + 1];
+        		inicializarMatriz();
+        	
+        		VentanaObstaculos vo = new VentanaObstaculos();
+        	}
+        	else {
+        		VentanaMensaje vm = new VentanaMensaje("Introduzca primero las dimensiones");
+        	}
+        }
+        else if (texto.equals("Automático")) {
+        	if ((filas > 0) && (columnas > 0)) {
+        		matriz = new String[filas + 1][columnas + 1];
+        		matrizRestaurar = new String[filas + 1][columnas + 1];
+        		inicializarMatriz();
+        	
+        		VentanaObstaculos2 vo2 = new VentanaObstaculos2();
+        	}
+        	else {
+        		VentanaMensaje vm = new VentanaMensaje("Introduzca primero las dimensiones");
+        	}
+        }
+        else if (texto.equals("Generar")) {
+        	// S—lo se generar‡ si se pusieron nœmero de filas y columnas y algœn obst‡culo
+        	if ((filas > 0) && (columnas > 0) && (!obstaculos.equals(""))) {
+        		dibujarInstancia();
+        		generado = true;
+        	}
+        	else {
+        		VentanaMensaje vm = new VentanaMensaje("Introduzca primero las dimensiones y obst‡culos"); 
+        	}
+        }
+        else if (texto.equals("Restaurar")) {
+        	if (generado) {
+        		restaurarMatriz();
+        		dibujarInstancia();
+        	}
+        	else {
+        		VentanaMensaje vm = new VentanaMensaje("Esta opci—n requiere que se genere primero");
+        	}
         }
         else if (texto.equals("Alg. Ciego")) {
-        	final BusquedaPrimeroProfundidad busquedaPrimeroProfundidad = new BusquedaPrimeroProfundidad(columnas, filas, this);
+        	if (generado) {
+        		final BusquedaPrimeroProfundidad busquedaPrimeroProfundidad = new BusquedaPrimeroProfundidad(columnas, filas, this);
 
-        	// ejecutamos en un nuevo hilo para permitir el repintado del canvas
-        	Runnable miRunnable = new Runnable()
-        	{
-        		public void run() {
-        			boolean resultado = busquedaPrimeroProfundidad.cortarCesped();
-        			if (resultado)
-        				System.out.println("Objetivo cumplido");
-        			else
-        				System.out.println("Objetivo NO cumplido");
-        		}
-        	};
-        	Thread hilo = new Thread (miRunnable);
-        	hilo.start();
+        		// ejecutamos en un nuevo hilo para permitir el repintado del canvas
+        		Runnable miRunnable = new Runnable()
+        		{
+        			public void run() {
+        				long t0 = System.currentTimeMillis();
+        				movimientos = 0;
+        				boolean resultado = busquedaPrimeroProfundidad.cortarCesped();
+        				if (resultado)
+        					System.out.println("Objetivo cumplido (Algoritmo Ciego)");
+        				else
+        					System.out.println("Objetivo NO cumplido");
+        				long tf = System.currentTimeMillis();
+        				System.out.println("Tiempo: " + ((tf-t0)/1000) + "s");
+        				System.out.println("Movimientos: " + movimientos);
+        			}
+        		};
+        		Thread hilo = new Thread (miRunnable);
+        		hilo.start();
+        	} 
+        	else {
+        		VentanaMensaje vm = new VentanaMensaje("Se debe generar la instancia antes de ejecutar el algoritmo");
+        	}
         }
         else if (texto.equals("Heu. Cortar Todo")) {
-        	final BusquedaPrimeroProfundidadMejorada busquedaPrimeroProfundidad = new BusquedaPrimeroProfundidadMejorada(columnas, filas, this);
-
-        	// ejecutamos en un nuevo hilo para permitir el repintado del canvas
-        	Runnable miRunnable = new Runnable()
-        	{
-        		public void run() {
-        			boolean resultado = busquedaPrimeroProfundidad.cortarCesped();
-        			if (resultado)
-        				System.out.println("Objetivo cumplido");
-        			else
-        				System.out.println("Objetivo NO cumplido");
-        		}
-        	};
-        	Thread hilo = new Thread (miRunnable);
-        	hilo.start();
+        	if (generado) {
+        		final BusquedaPrimeroProfundidadMejorada busquedaPrimeroProfundidad = new BusquedaPrimeroProfundidadMejorada(columnas, filas, this);
+        	
+        		// ejecutamos en un nuevo hilo para permitir el repintado del canvas
+        		Runnable miRunnable = new Runnable()
+        		{
+        			public void run() {
+        				long t0 = System.currentTimeMillis();
+        				movimientos = 0;
+        				boolean resultado = busquedaPrimeroProfundidad.cortarCesped();
+        				if (resultado)
+        					System.out.println("Objetivo cumplido (Heurística Cortar Todo)");
+        				else
+        					System.out.println("Objetivo NO cumplido");
+        				long tf = System.currentTimeMillis();
+        				System.out.println("Tiempo: " + ((tf-t0)/1000) + "s");
+        				System.out.println("Movimientos: " + movimientos);
+        			}
+        		};
+        		Thread hilo = new Thread (miRunnable);
+        		hilo.start();
+        	}
+        	else {
+        		VentanaMensaje vm = new VentanaMensaje("Se debe generar la instancia antes de ejecutar el algoritmo");
+        	}
         }
         else if (texto.equals("Heu. Cortar Zona")) {
-        	VentanaFinal vf = new VentanaFinal();
+        	if (generado) {
+        		VentanaFinal vf = new VentanaFinal();
+        	}
+        	else {
+        		VentanaMensaje vm = new VentanaMensaje("Se debe generar la instancia antes de ejecutar el algoritmo");
+        	}
         }
-        else if (texto.equals("Debug")) {		// Sólo para realizar ciertas pruebas
-        	mover(5,5);
-        }
+        //else if (texto.equals("Debug")) {		// Sólo para realizar ciertas pruebas
+        	//mover(5,5);
+        //}
     }
 
 	private void ejecutarHillClimbing() {
 		final HillClimbing hillClimbing = new HillClimbing(columnas, filas, puntoFinal, this);
 
-		// ejecutamos en un nuevo hilo para permitir el repintado del canvas
+		// Ejecutamos en un nuevo hilo para permitir el repintado del canvas
 		Runnable miRunnable = new Runnable()
 		{
 			public void run() {
+				long t0 = System.currentTimeMillis();
+				movimientos = 0;
 				boolean resultado = hillClimbing.cortarCesped();
 				if (resultado)
-					System.out.println("Objetivo cumplido");
+					System.out.println("Objetivo cumplido (Hill Climbing)");
 				else
 					System.out.println("Objetivo NO cumplido");
+				long tf = System.currentTimeMillis();
+				System.out.println("Tiempo: " + ((tf-t0)/1000) + "s");
+				System.out.println("Movimientos: " + movimientos);
 			}
 		};
 		Thread hilo = new Thread (miRunnable);
 		hilo.start();
 	}
+	
+	public void guardarMatriz() {
+		for (int i = 1; i <= filas; i++)
+			for (int j = 1; j <= columnas; j++)
+				matrizRestaurar[i][j] = matriz[i][j];
+	}
+	
+	public void restaurarMatriz() {
+		for (int i = 1; i <= filas; i++)
+			for (int j = 1; j <= columnas; j++)
+				matriz[i][j] = matrizRestaurar[i][j];
+	}
     
     public void dibujarInstancia() {
+    	if (lienzo != null)
+    		ventana.remove(lienzo);
+    	
     	lienzo = new Lienzo();
     	//ventana.setSize((columnas*CELDACOL)+(2*MARGENCOL), (filas*CELDAFILA)+(2*MARGENFILA));
     	if ((filas <= 20) && (columnas <= 20)) { 
     		ventana.add(lienzo, BorderLayout.CENTER);
     	}
     	else {
-			// MENSAJE: EL ALGORITMO SE EJECUTARÁ SIN VISUALIZAR
     		VentanaMensaje vm = new VentanaMensaje("El algoritmo se ejecutará sin visualización");
     	}
     	ventana.repaint();
@@ -582,6 +764,7 @@ public class CortaCesped implements ActionListener {
     	this.cortacespedColumna = posicionColumna;
     	
     	System.out.println("Mover a (" + posicionFila + "," + posicionColumna + ")");
+    	movimientos++;
     	
     	try {
 			Thread.sleep(50);
