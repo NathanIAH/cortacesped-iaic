@@ -30,9 +30,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.iaic.cortacesped.Heuristicas.BusquedaPrimeroProfundidadMejorada;
-import com.iaic.cortacesped.Heuristicas.HillClimbing;
-import com.iaic.cortacesped.Heuristicas.PrimeroElMejor;
 import com.iaic.cortacesped.Heuristicas.Haces;
+import com.iaic.cortacesped.Heuristicas.HillClimbing;
+import com.iaic.cortacesped.Heuristicas.HillClimbingEuclides;
 import com.iaic.cortacesped.busquedasCiegas.BusquedaPrimeroProfundidad;
 
 public class CortaCesped implements ActionListener {
@@ -48,44 +48,44 @@ public class CortaCesped implements ActionListener {
 			g.setColor(Color.BLACK);
 			int posFila = MARGENFILA;
 			int posColumna = MARGENCOL;
-			// Dibujar la cuadrï¿½cula
-			// Dibujar las filas de la cuadrï¿½cula
+			// Dibujar la cuadrícula
+			// Dibujar las filas de la cuadrícula
 			for (int i = 0; i <= filas; i++) {
 				g.drawLine(posFila, posColumna, posFila+(columnas*CELDAFILA), posColumna);
 				posColumna += CELDACOL;
 			}
 			posColumna = MARGENCOL;
-			// Dibujar las columnas de la cuadrï¿½cula
+			// Dibujar las columnas de la cuadrícula
 			for (int i = 0; i <= columnas; i++) {
 				g.drawLine(posFila, posColumna, posFila, posColumna+(filas*CELDACOL));
 				posFila += CELDAFILA;
 			}
-			// Dibujar las imï¿½genes en las casillas correspondientes de la cuadrï¿½cula
+			// Dibujar las imágenes en las casillas correspondientes de la cuadrícula
 			Image icespedbajo = Toolkit.getDefaultToolkit().getImage("res/imagenes/CespedBajo.jpg");
 			Image icespedalto = Toolkit.getDefaultToolkit().getImage("res/imagenes/CespedAlto.jpg");
 			Image iobstaculo = Toolkit.getDefaultToolkit().getImage("res/imagenes/Obstaculo.jpg");
 			for (int i = 1; i <= filas; i++) {
 				for (int j = 1; j <= columnas; j++) {
-					if (matriz[i][j].equals("Obstï¿½culo")) {
-						//System.out.println("Obstï¿½culo en " + i +"," + j);
+					if (matriz[i][j].equals("Obstáculo")) {
+						//System.out.println("Obstáculo en " + i +"," + j);
 						g.drawImage(iobstaculo, MARGENFILA+((j-1)*CELDAFILA), MARGENCOL+((i-1)*CELDACOL), this);
 					}
-					else if (matriz[i][j].equals("Cï¿½sped bajo")) {
-						//System.out.println("Cï¿½sped bajo en " + i + "," + j);
+					else if (matriz[i][j].equals("Césped bajo")) {
+						//System.out.println("Césped bajo en " + i + "," + j);
 						g.drawImage(icespedbajo, MARGENFILA+((j-1)*CELDAFILA), MARGENCOL+((i-1)*CELDACOL), this);
 					}
-					else if (matriz[i][j].equals("Cï¿½sped alto")) {
-						//System.out.println("Cï¿½sped alto en " + i + "," + j);
+					else if (matriz[i][j].equals("Césped alto")) {
+						//System.out.println("Césped alto en " + i + "," + j);
 						g.drawImage(icespedalto, MARGENFILA+((j-1)*CELDAFILA), MARGENCOL+((i-1)*CELDACOL), this);
 					}
 				}
 			}
 			Image icortacespedbajo = Toolkit.getDefaultToolkit().getImage("res/imagenes/Cortacesped_Bajo.jpg");
 			Image icortacespedalto = Toolkit.getDefaultToolkit().getImage("res/imagenes/Cortacesped_Alto.jpg");
-			// Dibujar el cortacï¿½sped
-			if (matriz[cortacespedFila][cortacespedColumna].equals("Cï¿½sped alto"))
+			// Dibujar el cortacésped
+			if (matriz[cortacespedFila][cortacespedColumna].equals("Césped alto"))
 				g.drawImage(icortacespedalto, MARGENFILA+((cortacespedColumna-1)*CELDAFILA), MARGENCOL+((cortacespedFila-1)*CELDACOL), this);
-			else if (matriz[cortacespedFila][cortacespedColumna].equals("Cï¿½sped bajo"))
+			else if (matriz[cortacespedFila][cortacespedColumna].equals("Césped bajo"))
 				g.drawImage(icortacespedbajo, MARGENFILA+((cortacespedColumna-1)*CELDAFILA), MARGENCOL+((cortacespedFila-1)*CELDACOL), this);
 		}
 	}
@@ -108,10 +108,10 @@ public class CortaCesped implements ActionListener {
 					e.getWindow().dispose();
 				}
 			});
-			// Aï¿½adir los elementos de la ventana Dimensiones
-			Label l1 = new Label("Nï¿½mero de filas: ");
+			// Añadir los elementos de la ventana Dimensiones
+			Label l1 = new Label("Número de filas: ");
 			TextField tf1 = new TextField();
-			Label l2 = new Label("Nï¿½mero de columnas: ");
+			Label l2 = new Label("Número de columnas: ");
 			TextField tf2 = new TextField();
 			Button boton = new Button("Guardar");
 			boton.addActionListener(this);
@@ -141,7 +141,7 @@ public class CortaCesped implements ActionListener {
 					//System.out.println("Columnas = " + columnas);
 				}
 				else {
-					VentanaMensaje vm = new VentanaMensaje("No se ha especificado alguna dimensiï¿½n");
+					VentanaMensaje vm = new VentanaMensaje("No se ha especificado alguna dimensi—n");
 				}
 			}
 		}
@@ -149,7 +149,7 @@ public class CortaCesped implements ActionListener {
 	private class VentanaObstaculos implements ActionListener {
 		private Frame ventana_obstaculos;
 		public VentanaObstaculos() {
-			ventana_obstaculos = new Frame("Obstï¿½culos");
+			ventana_obstaculos = new Frame("Obstáculos");
 			ventana_obstaculos.setSize(550, 100);
 			ventana_obstaculos.setResizable(false);
 			ventana_obstaculos.setLayout(new GridLayout(3,2));
@@ -165,10 +165,10 @@ public class CortaCesped implements ActionListener {
 					e.getWindow().dispose();
 				}
 			});
-			// Aï¿½adir los elementos de la ventana Dimensiones
-			Label l1 = new Label("Obstï¿½culos (fila,columna);(fila',columna'): ");
+			// Añadir los elementos de la ventana Dimensiones
+			Label l1 = new Label("Obstáculos (fila,columna);(fila',columna'): ");
 			TextField tf1 = new TextField();
-			Label l2 = new Label("Cï¿½sped bajo (fila,columna);(fila',columna'): ");
+			Label l2 = new Label("Césped bajo (fila,columna);(fila',columna'): ");
 			TextField tf2 = new TextField();
 			Button boton = new Button("Guardar");
 			boton.addActionListener(this);
@@ -192,7 +192,7 @@ public class CortaCesped implements ActionListener {
 					String vobstaculos[] = obstaculos.split(";");
 					for (int i = 0; i < vobstaculos.length; i++) {
 						String vcoordenadas[] = vobstaculos[i].split(",");
-						matriz[Integer.parseInt(vcoordenadas[0])][Integer.parseInt(vcoordenadas[1])] = "Obstï¿½culo";
+						matriz[Integer.parseInt(vcoordenadas[0])][Integer.parseInt(vcoordenadas[1])] = "Obstáculo";
 					}
 				}
 				TextField tf_cespedbajo = (TextField)ventana_obstaculos.getComponent(3);
@@ -202,7 +202,7 @@ public class CortaCesped implements ActionListener {
 					String vcespedbajo[] = cespedbajo.split(";");
 					for (int i = 0; i < vcespedbajo.length; i++) {
 						String vcoordenadas[] = vcespedbajo[i].split(",");
-						matriz[Integer.parseInt(vcoordenadas[0])][Integer.parseInt(vcoordenadas[1])] = "Cï¿½sped bajo";
+						matriz[Integer.parseInt(vcoordenadas[0])][Integer.parseInt(vcoordenadas[1])] = "Césped bajo";
 					}
 				}
 				guardarMatriz();
@@ -215,7 +215,7 @@ public class CortaCesped implements ActionListener {
 	private class VentanaObstaculos2 implements ActionListener {
 		private Frame ventana_obstaculos;
 		public VentanaObstaculos2() {
-			ventana_obstaculos = new Frame("Obstï¿½culos");
+			ventana_obstaculos = new Frame("Obstáculos");
 			ventana_obstaculos.setSize(400, 100);
 			ventana_obstaculos.setResizable(false);
 			ventana_obstaculos.setLayout(new GridLayout(3,2));
@@ -231,10 +231,10 @@ public class CortaCesped implements ActionListener {
 					e.getWindow().dispose();
 				}
 			});
-			// Aï¿½adir los elementos de la ventana Dimensiones
-			Label l1 = new Label("Nï¿½mero de Obstï¿½culos");
+			// Añadir los elementos de la ventana Dimensiones
+			Label l1 = new Label("Número de Obstáculos");
 			TextField tf1 = new TextField();
-			Label l2 = new Label("Nï¿½mero de Cï¿½sped bajo");
+			Label l2 = new Label("Número de Césped bajo");
 			TextField tf2 = new TextField();
 			Button boton = new Button("Guardar");
 			boton.addActionListener(this);
@@ -263,8 +263,8 @@ public class CortaCesped implements ActionListener {
 					do {
 						fila = generarAleatorio(1, filas);
 						columna = generarAleatorio(1, columnas);
-					} while (((fila == 1) && (columna == 1)) || (matriz[fila][columna].equals("Obstï¿½culo")));
-					matriz[fila][columna] = "Obstï¿½culo";
+					} while (((fila == 1) && (columna == 1)) || (matriz[fila][columna].equals("Obstáculo")));
+					matriz[fila][columna] = "Obstáculo";
 					obstaculos += fila + "," + columna + ";";
 				}
 				
@@ -275,9 +275,9 @@ public class CortaCesped implements ActionListener {
 					do {
 						fila = generarAleatorio(1, filas);
 						columna = generarAleatorio(1, columnas);
-					} while ((matriz[fila][columna].equals("Obstï¿½culo")) || 
-							(matriz[fila][columna].equals("Cï¿½sped bajo")));
-					matriz[fila][columna] = "Cï¿½sped bajo";
+					} while ((matriz[fila][columna].equals("Obstáculo")) || 
+							(matriz[fila][columna].equals("Césped bajo")));
+					matriz[fila][columna] = "Césped bajo";
 					cespedbajo += fila + "," + columna + ";";
 				}
 				guardarMatriz();
@@ -289,7 +289,10 @@ public class CortaCesped implements ActionListener {
 	}
 	private class VentanaFinal implements ActionListener {
 		private Frame ventana_final;
-		public VentanaFinal() {
+		private String algoritmo;
+		public VentanaFinal(String algoritmo) {
+			this.algoritmo = algoritmo;
+			
 			ventana_final = new Frame("Punto final");
 			ventana_final.setSize(350, 75);
 			ventana_final.setResizable(false);
@@ -306,7 +309,7 @@ public class CortaCesped implements ActionListener {
 					e.getWindow().dispose();
 				}
 			});
-			// Aï¿½adir los elementos de la ventana Dimensiones
+			// Añadir los elementos de la ventana Dimensiones
 			Label l1 = new Label("Punto final (fila, columna): ");
 			TextField tf1 = new TextField();			
 			Button boton = new Button("Guardar");
@@ -333,14 +336,22 @@ public class CortaCesped implements ActionListener {
 				ventana_final.dispose();
 				
 				puntoFinal = new Point(x,y);
-	        	ejecutarHillClimbing();				
+				
+				
+	        if ("Heu. HillClimbing".equals(algoritmo))
+	        	ejecutarHillClimbing();			
+	        else if ("Heu. Haces".equals(algoritmo))
+	        	ejecutarHaces();	
+	        else if ("Heu. Euclides".equals(algoritmo))
+	        	ejecutarHillClimbingEuclides();	
+					
 			}
 		}
 	}	
 	private class VentanaMensaje implements ActionListener  {
 		private Frame ventana_mensaje;
 		public VentanaMensaje(final String mensaje) {
-			ventana_mensaje = new Frame("Cortacï¿½sped v1.0 - Mensaje");
+			ventana_mensaje = new Frame("Cortacésped v1.0 - Mensaje");
 			ventana_mensaje.setSize(400, 75);
 			ventana_mensaje.setResizable(false);
 			ventana_mensaje.setLayout(new BorderLayout());
@@ -356,7 +367,7 @@ public class CortaCesped implements ActionListener {
 					e.getWindow().dispose();
 				}
 			});
-			// Aï¿½adir los elementos de la ventana Mensaje
+			// Añadir los elementos de la ventana Mensaje
 			Label l1 = new Label(mensaje);	
 			Button boton = new Button("Aceptar");
 			ventana_mensaje.add(l1, BorderLayout.CENTER);
@@ -376,9 +387,9 @@ public class CortaCesped implements ActionListener {
 	}	
 	private String obstaculos;
 	private String cespedbajo;	
-	// Tamaï¿½o de la Ventana: 800x600
-	// Mï¿½ximo Nï¿½ Filas visualizables: 20
-	// Mï¿½ximo Nï¿½ Columnas visualizables: 20
+	// Tamaño de la Ventana: 800x600
+	// Máximo Nº Filas visualizables: 20
+	// Máximo Nº Columnas visualizables: 20
 	public static enum Sensor {NORTE, SUR, ESTE, OESTE};
 	private final int CELDAFILA = 36;
 	private final int MARGENFILA = 40;
@@ -397,13 +408,13 @@ public class CortaCesped implements ActionListener {
     private boolean generado;
     
     public CortaCesped() {
-    	// Inicializaciï¿½n de algunas variables
+    	// Inicialización de algunas variables
     	filas = columnas = 0;
     	obstaculos = cespedbajo = "";
     	generado = false;
     	cortacespedFila = cortacespedColumna = 1;
     	//------------------------------------
-        ventana = new Frame("Cortacï¿½sped v1.0");
+        ventana = new Frame("Cortacésped v1.0");
         
         MenuBar menu = new MenuBar();
         
@@ -417,9 +428,9 @@ public class CortaCesped implements ActionListener {
         Menu cargar = new Menu("Cargar");
         MenuItem cargar_dimensiones = new MenuItem("Dimensiones");
         
-        Menu cargar_obstaculos = new Menu("Obstï¿½culos");
+        Menu cargar_obstaculos = new Menu("Obstáculos");
         MenuItem cargar_obstaculos_manual = new MenuItem("Manual");
-        MenuItem cargar_obstaculos_automatico = new MenuItem("Automï¿½tico");
+        MenuItem cargar_obstaculos_automatico = new MenuItem("Automático");
         cargar_obstaculos.add(cargar_obstaculos_manual);
         cargar_obstaculos.add(cargar_obstaculos_automatico);
         
@@ -438,21 +449,21 @@ public class CortaCesped implements ActionListener {
         MenuItem ejecutar_heutodo = new MenuItem("Heu. Cortar Todo");
         MenuItem ejecutar_heuzona = new MenuItem("Heu. HillClimbing");
         MenuItem ejecutar_heuzona2 = new MenuItem("Heu. Haces");
-        MenuItem ejecutar_heuzona3 = new MenuItem("Heu. PrimeroMejor");
+        MenuItem ejecutar_heuzona3 = new MenuItem("Heu. Euclides");
+        
         
         ejecutar.add(ejecutar_algciego);
         ejecutar.add(ejecutar_heutodo);
         ejecutar.add(ejecutar_heuzona);
         ejecutar.add(ejecutar_heuzona2);
-        ejecutar.add(ejecutar_heuzona3);
-
+        ejecutar.add(ejecutar_heuzona3); 
         
         //Menu debug = new Menu("Debug");
         //MenuItem debug_debug = new MenuItem ("Debug");
         
         //debug.add(debug_debug);
         
-        // Agregar un listener para los elementos del menï¿½
+        // Agregar un listener para los elementos del menú
         archivo_cargar.addActionListener(this);
         archivo_guardar.addActionListener(this);
         cargar_dimensiones.addActionListener(this);
@@ -464,8 +475,7 @@ public class CortaCesped implements ActionListener {
         ejecutar_heutodo.addActionListener(this);
         ejecutar_heuzona.addActionListener(this);
         ejecutar_heuzona2.addActionListener(this);
-        ejecutar_heuzona3.addActionListener(this);
-
+        ejecutar_heuzona3.addActionListener(this); 
         //debug_debug.addActionListener(this);
 
         menu.add(archivo);
@@ -496,7 +506,7 @@ public class CortaCesped implements ActionListener {
     private void inicializarMatriz() {
     	for (int i = 1; i <= filas; i++) {
 			for (int j = 1; j <= columnas; j++) {
-				matriz[i][j] = "Cï¿½sped alto";
+				matriz[i][j] = "Césped alto";
 			}
     	}
     }    
@@ -506,7 +516,7 @@ public class CortaCesped implements ActionListener {
         String texto = item.getLabel();
         //System.out.println("Opcion seleccionada: " + texto);
         if (texto.equals("Cargar")) {
-        	FileDialog fd = new FileDialog(ventana, "Cargar configuraciï¿½n");
+        	FileDialog fd = new FileDialog(ventana, "Cargar configuración");
         	fd.show();
         	String nombre_archivo = fd.getDirectory() + fd.getFile();
         	try {
@@ -528,14 +538,14 @@ public class CortaCesped implements ActionListener {
         		String vobstaculos[] = obstaculos.split(";");
         		for (int i = 0; i < vobstaculos.length; i++) {
         			String vcoordenadas[] = vobstaculos[i].split(",");
-        			matriz[Integer.parseInt(vcoordenadas[0])][Integer.parseInt(vcoordenadas[1])] = "Obstï¿½culo";
+        			matriz[Integer.parseInt(vcoordenadas[0])][Integer.parseInt(vcoordenadas[1])] = "Obstáculo";
         		}
         		
         		if (cespedbajo != null) {
         			String vcespedbajo[] = cespedbajo.split(";");
         			for (int i = 0; i < vcespedbajo.length; i++) {
         				String vcoordenadas[] = vcespedbajo[i].split(",");
-        				matriz[Integer.parseInt(vcoordenadas[0])][Integer.parseInt(vcoordenadas[1])] = "Cï¿½sped bajo";
+        				matriz[Integer.parseInt(vcoordenadas[0])][Integer.parseInt(vcoordenadas[1])] = "Césped bajo";
         			}
         		}
         		guardarMatriz();
@@ -555,11 +565,11 @@ public class CortaCesped implements ActionListener {
         		String minuto = Integer.toString(c.get(Calendar.MINUTE)); 
         		String nombre_archivo = "datos_" + dia + mes + anio + "_" + hora + minuto + ".dat";
         		// Prepara el fichero de salida:
-        		// La primera lï¿½nea contiene las dimensiones (filas y columnas) separadas por un espacio
+        		// La primera línea contiene las dimensiones (filas y columnas) separadas por un espacio
         		String guardar = this.filas + " " + this.columnas + "\n";
-        		// La segunda lï¿½nea contiene los obstï¿½culos
+        		// La segunda línea contiene los obstáculos
         		guardar += obstaculos + "\n";
-        		// La tercera lï¿½nea contiene dï¿½nde estï¿½ el cï¿½sped bajo
+        		// La tercera línea contiene dónde está el césped bajo
         		guardar += cespedbajo;
         		try {		
         			FileWriter fw = new FileWriter(nombre_archivo);
@@ -592,7 +602,7 @@ public class CortaCesped implements ActionListener {
         		VentanaMensaje vm = new VentanaMensaje("Introduzca primero las dimensiones");
         	}
         }
-        else if (texto.equals("Automï¿½tico")) {
+        else if (texto.equals("Automático")) {
         	if ((filas > 0) && (columnas > 0)) {
         		matriz = new String[filas + 1][columnas + 1];
         		matrizRestaurar = new String[filas + 1][columnas + 1];
@@ -605,13 +615,13 @@ public class CortaCesped implements ActionListener {
         	}
         }
         else if (texto.equals("Generar")) {
-        	// Sï¿½lo se generarï¿½ si se pusieron nï¿½mero de filas y columnas y algï¿½n obstï¿½culo
+        	// S—lo se generar‡ si se pusieron nœmero de filas y columnas y algœn obst‡culo
         	if ((filas > 0) && (columnas > 0) && (!obstaculos.equals(""))) {
         		dibujarInstancia();
         		generado = true;
         	}
         	else {
-        		VentanaMensaje vm = new VentanaMensaje("Introduzca primero las dimensiones y obstï¿½culos"); 
+        		VentanaMensaje vm = new VentanaMensaje("Introduzca primero las dimensiones y obst‡culos"); 
         	}
         }
         else if (texto.equals("Restaurar")) {
@@ -620,7 +630,7 @@ public class CortaCesped implements ActionListener {
         		dibujarInstancia();
         	}
         	else {
-        		VentanaMensaje vm = new VentanaMensaje("Esta opciï¿½n requiere que se genere primero");
+        		VentanaMensaje vm = new VentanaMensaje("Esta opci—n requiere que se genere primero");
         	}
         }
         else if (texto.equals("Alg. Ciego")) {
@@ -662,7 +672,7 @@ public class CortaCesped implements ActionListener {
         				movimientos = 0;
         				boolean resultado = busquedaPrimeroProfundidad.cortarCesped();
         				if (resultado)
-        					System.out.println("Objetivo cumplido (Heurï¿½stica Cortar Todo)");
+        					System.out.println("Objetivo cumplido (Heurística Cortar Todo)");
         				else
         					System.out.println("Objetivo NO cumplido");
         				long tf = System.currentTimeMillis();
@@ -679,7 +689,7 @@ public class CortaCesped implements ActionListener {
         }
         else if (texto.equals("Heu. HillClimbing")) {
         	if (generado) {
-        		VentanaFinal vf = new VentanaFinal();
+        		VentanaFinal vf = new VentanaFinal("Heu. HillClimbing");
         	}
         	else {
         		VentanaMensaje vm = new VentanaMensaje("Se debe generar la instancia antes de ejecutar el algoritmo");
@@ -687,23 +697,21 @@ public class CortaCesped implements ActionListener {
         }
         else if (texto.equals("Heu. Haces")) {
         	if (generado) {
-        		VentanaFinal vf = new VentanaFinal();
+        		VentanaFinal vf = new VentanaFinal("Heu. Haces");
         	}
         	else {
         		VentanaMensaje vm = new VentanaMensaje("Se debe generar la instancia antes de ejecutar el algoritmo");
         	}
         }
-        else if (texto.equals("Heu. PrimeroMejor")) {
+        else if (texto.equals("Heu. Euclides")) {
         	if (generado) {
-        		VentanaFinal vf = new VentanaFinal();
+        		VentanaFinal vf = new VentanaFinal("Heu. Euclides");
         	}
         	else {
         		VentanaMensaje vm = new VentanaMensaje("Se debe generar la instancia antes de ejecutar el algoritmo");
         	}
-        }
-        
-        
-        //else if (texto.equals("Debug")) {		// Sï¿½lo para realizar ciertas pruebas
+        }     
+        //else if (texto.equals("Debug")) {		// Sólo para realizar ciertas pruebas
         	//mover(5,5);
         //}
     }
@@ -731,6 +739,52 @@ public class CortaCesped implements ActionListener {
 		hilo.start();
 	}
 	
+	private void ejecutarHillClimbingEuclides() {
+		final HillClimbingEuclides hillClimbingEuclides = new HillClimbingEuclides(columnas, filas, puntoFinal, this);
+
+		// Ejecutamos en un nuevo hilo para permitir el repintado del canvas
+		Runnable miRunnable = new Runnable()
+		{
+			public void run() {
+				long t0 = System.currentTimeMillis();
+				movimientos = 0;
+				boolean resultado = hillClimbingEuclides.cortarCesped();
+				if (resultado)
+					System.out.println("Objetivo cumplido (Euclides)");
+				else
+					System.out.println("Objetivo NO cumplido");
+				long tf = System.currentTimeMillis();
+				System.out.println("Tiempo: " + ((tf-t0)/1000) + "s");
+				System.out.println("Movimientos: " + movimientos);
+			}
+		};
+		Thread hilo = new Thread (miRunnable);
+		hilo.start();
+	}
+	
+	private void ejecutarHaces() {
+		final Haces haces = new Haces(columnas, filas, puntoFinal, this);
+
+		// Ejecutamos en un nuevo hilo para permitir el repintado del canvas
+		Runnable miRunnable = new Runnable()
+		{
+			public void run() {
+				long t0 = System.currentTimeMillis();
+				movimientos = 0;
+				boolean resultado = haces.cortarCesped();
+				if (resultado)
+					System.out.println("Objetivo cumplido (Haces)");
+				else
+					System.out.println("Objetivo NO cumplido");
+				long tf = System.currentTimeMillis();
+				System.out.println("Tiempo: " + ((tf-t0)/1000) + "s");
+				System.out.println("Movimientos: " + movimientos);
+			}
+		};
+		Thread hilo = new Thread (miRunnable);
+		hilo.start();
+	}	
+	
 	public void guardarMatriz() {
 		for (int i = 1; i <= filas; i++)
 			for (int j = 1; j <= columnas; j++)
@@ -753,19 +807,19 @@ public class CortaCesped implements ActionListener {
     		ventana.add(lienzo, BorderLayout.CENTER);
     	}
     	else {
-    		VentanaMensaje vm = new VentanaMensaje("El algoritmo se ejecutarï¿½ sin visualizaciï¿½n");
+    		VentanaMensaje vm = new VentanaMensaje("El algoritmo se ejecutará sin visualización");
     	}
     	ventana.repaint();
     }
     
     /**
-     * Devuelve si estï¿½ ocupado el vecino correspondiente a alguna de las direcciones de 
+     * Devuelve si está ocupado el vecino correspondiente a alguna de las direcciones de 
  	 * movimiento (SN, SO, SS, SE).
  	 * 
-     * Las casillas fuera del jardï¿½n se contemplaran como un obstï¿½culo
+     * Las casillas fuera del jardín se contemplaran como un obstáculo
  	 * 
      * @return mapa con los sensores (SN, SO, SS, SE) como clave y <code>boolean</code>
-     * como valor; siendo ï¿½ste <code>true</code> si el vecino correspondiente estï¿½ ocupado
+     * como valor; siendo éste <code>true</code> si el vecino correspondiente está ocupado
      */
     public Map<Sensor, Boolean> getEstadoSensores() {
     	Map<Sensor, Boolean> estadoSensores = new HashMap<Sensor, Boolean>();
@@ -774,13 +828,13 @@ public class CortaCesped implements ActionListener {
     	estadoSensores.put(Sensor.SUR, false);
     	estadoSensores.put(Sensor.ESTE, false);
     		
-    	if (((cortacespedFila-1) < 1) || (matriz[cortacespedFila-1][cortacespedColumna].equals("Obstï¿½culo")))
+    	if (((cortacespedFila-1) < 1) || (matriz[cortacespedFila-1][cortacespedColumna].equals("Obstáculo")))
     		estadoSensores.put(Sensor.NORTE, true);  	
-    	if (((cortacespedColumna-1) < 1) || (matriz[cortacespedFila][cortacespedColumna-1].equals("Obstï¿½culo")))
+    	if (((cortacespedColumna-1) < 1) || (matriz[cortacespedFila][cortacespedColumna-1].equals("Obstáculo")))
     		estadoSensores.put(Sensor.OESTE, true);  	
-    	if (((cortacespedFila+1) > filas) || (matriz[cortacespedFila+1][cortacespedColumna].equals("Obstï¿½culo")))
+    	if (((cortacespedFila+1) > filas) || (matriz[cortacespedFila+1][cortacespedColumna].equals("Obstáculo")))
     		estadoSensores.put(Sensor.SUR, true);
-    	if (((cortacespedColumna+1) > columnas) || (matriz[cortacespedFila][cortacespedColumna+1].equals("Obstï¿½culo")))
+    	if (((cortacespedColumna+1) > columnas) || (matriz[cortacespedFila][cortacespedColumna+1].equals("Obstáculo")))
     		estadoSensores.put(Sensor.ESTE, true);	
     	
     	return estadoSensores;
@@ -804,10 +858,10 @@ public class CortaCesped implements ActionListener {
     }
     
     public void cortarCesped() {
-    	// Sï¿½lo cortarï¿½ el cï¿½sped si el sensor del cortacï¿½sped indica que ï¿½ste estï¿½ lo suficiente alto
-    	if (matriz[cortacespedFila][cortacespedColumna].equals("Cï¿½sped alto")) {
-    		matriz[cortacespedFila][cortacespedColumna] = "Cï¿½sped bajo";
-    		System.out.println("Cortar cï¿½sped en (" + cortacespedFila + "," + cortacespedColumna + ")");
+    	// Sólo cortará el césped si el sensor del cortacésped indica que éste está lo suficiente alto
+    	if (matriz[cortacespedFila][cortacespedColumna].equals("Césped alto")) {
+    		matriz[cortacespedFila][cortacespedColumna] = "Césped bajo";
+    		System.out.println("Cortar césped en (" + cortacespedFila + "," + cortacespedColumna + ")");
 
     		try {
     			Thread.sleep(50);
