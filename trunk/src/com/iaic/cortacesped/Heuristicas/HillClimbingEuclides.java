@@ -10,21 +10,6 @@ import java.util.Map;
 import com.iaic.cortacesped.CortaCesped;
 import com.iaic.cortacesped.CortaCespedUtils;
 
-
-
-/**
- * 
- * Heurística Hill-Climbing
- * Continua por el mejor de los hijos basándonos en la distancia de su hijo respecto al nodo objetivo
- * 
- * Inicialmente valoramos los hijos del nodo raíz y los introducimos en la lista, tratamos de conseguir el objetivo
- * a partir del que tenga un valor mejor (es decir, distancia mejor). En caso de que no encuentre el objetivo
- * continuará por el siguiente de la lista.
- * 
- * @author Jeray
- *
- */
-
 public class HillClimbingEuclides extends CortaCespedUtils {
 	
 	private Point nObjetivo = new Point();
@@ -142,9 +127,9 @@ public class HillClimbingEuclides extends CortaCespedUtils {
 	
 	
 	/**
-	 * Calcula la distancia Manhatan desde el punto dado hasta el destino
+	 * Calcula la distancia eucl�dea desde el punto dado hasta el destino
 	 * @param nHijo punto dado
-	 * @return distancia Manhattan
+	 * @return distancia eucl�dea
 	 */
 	private int getDistanciaObjetivo(Point  nHijo) {
 		return  (int) Math.sqrt(Math.pow((nHijo.x - nObjetivo.x),2) + Math.pow((nHijo.y-nObjetivo.y),2));
