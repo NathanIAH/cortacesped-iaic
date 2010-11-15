@@ -27,9 +27,16 @@ Alg. Ciego: Ejecuta la búsqueda en profundida,  que es denominado  como
             algoritmo ciego, sobre el escenario cargado anteriormente          
 Heurística
 	Heu Cortar Todo: Ejecuta una heurística propia en el escenario dado
-	Heu Cortar Zona: Ejecuta la heurística HillClimbing entre el  punto 
+	Heu HillClimbing: Ejecuta la heurística HillClimbing entre el  punto 
 	                 inicial y final, solicitado mediante formulario de
 	                 entrada, en el escenario dado
+	Heu Haces: Ejecuta la heurística de Haces entre el punto inicial y
+	           final, solicitado mediante formilario de entrada, en el
+	           escenario dado.
+	Heu Euclides: Ejecuta la heurística HillClimbing calculando la
+	              distancia euclídea entre el punto inicial y final,
+	              solicitando mediante formulario de entrada, en el
+	              escenario dado.
 	                 
 =======================================================================
 = 						ESQUEMA DE EJECUCIÓN		   	              =
@@ -44,7 +51,9 @@ Paso 2 - Generar instancia del escenario
 Paso 3 - Ejecutar el algoritmo ciego o heurística
 	a) Ejecutar -> Alg. Ciego
 	b) Ejecutar -> Heurística - > Heu. Cortar Todo
-	c) Ejecutar -> Heurística - > Heu. Cortar Zona
+	c) Ejecutar -> Heurística - > Heu. HillClimbing
+	d) Ejecutar -> Heurística - > Heu. Haces
+	e) Ejecutar -> Heurística - > Heu. Euclides
 Paso 4 (opcional) - Restaurar escenario
 	a) Instancia -> Restaurar ; Ir a Paso 3
 Paso 5 (opcional) - Crear un nuevo escenario
