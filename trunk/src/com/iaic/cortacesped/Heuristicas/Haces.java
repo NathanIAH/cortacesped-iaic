@@ -49,8 +49,8 @@ public class Haces extends CortaCespedUtils {
 		while (!nodos.isEmpty() && !nodoObjetivo) {
 			posicionActual = nodos.get(0);
 
-			// mover(int x, int y) est� implementado en los m�todos del cortac�sped, 
-			// y mover� el cortac�sped en la direcci�n (N,O,S,E) relativa a la posici�n especificada
+			// mover(int x, int y) está implementado en los métodos del cortacesped, 
+			// y mover el cortacesped en la dirección (N,O,S,E) relativa a la posición especificada
 			cortaCesped.mover(posicionActual.x, posicionActual.y);
 			
 			// cortarCesped() est� implementado en los m�todos del cortac�sped, 
