@@ -53,8 +53,8 @@ public class Haces extends CortaCespedUtils {
 			// y mover el cortacesped en la dirección (N,O,S,E) relativa a la posición especificada
 			cortaCesped.mover(posicionActual.x, posicionActual.y);
 			
-			// cortarCesped() est� implementado en los m�todos del cortac�sped, 
-			// y cortar� el c�sped en caso de que el fotosensor detecte c�sped lo suficientemente alto
+			// cortarCesped() está implementado en los métodos del cortacesped, 
+			// y cortará el césped en caso de que el fotosensor detecte césped lo suficientemente alto
 			cortaCesped.cortarCesped();
 			
 			// memorizar posici�n cortada
